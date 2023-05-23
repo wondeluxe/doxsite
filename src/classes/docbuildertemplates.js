@@ -7,88 +7,403 @@ import shell from 'shelljs';
 
 export default class DocBuilderTemplates
 {
+	/** Main page template that all pages are constructed from. */
+
 	page = null;
+
+	/** Markup for type/member declarations. */
+
 	memberDeclaration = null;
+
+	/** Markup for type inheritance. */
+
 	memberInherits = null;
+
+	/** Markup for interfaces implemented by a type. */
+
 	memberImplements = null;
+
+	/** Markup for the listed item's namespace. */
+
 	memberNamespace = null;
+
+	/** Markup for the listed item's assembly. */
+
 	memberAssembly = null;
+
+	/** Markup for a namespace that appears in the nav menu on a page. */
+
 	navNamespace = null;
+
+	/** Markup for an item (class/struct/enum etc.) that is listed in the nav menu under a namespace. */
+
 	navMember = null;
+
+	/** Markup for the description section of a page. */
+
 	descriptionSection = null;
+
+	/** Markup for the section of a page that documents an item's type/template parameters. */
+
 	typeParameterSection = null;
+
+	/** Markup for a documented type/template parameter. */
+
 	typeParameter = null;
+
+	/** Markup for the section of a page that documents an item's fields. */
+
 	fieldSection = null;
+
+	/** Markup for a documented field. */
+
 	field = null;
+
+	/** Markup for the section of a page that documents an item's properties. */
+
 	propertySection = null;
+
+	/** Markup for a documented property. */
+
 	property = null;
+
+	/** Markup for the section of a page that documents an item's methods. */
+
 	methodSection = null;
+
+	/** Markup for a documented method. */
+
 	method = null;
+
+	/** Markup for the section of a page that documents an item's events. */
+
 	eventSection = null;
+
+	/** Markup for a documented event. */
+
 	event = null;
+
+	/** Markup for the section of a page that documents an item's instance/non-static fields. */
+
 	instanceFieldSection = null;
+
+	/** Markup for a documented instance/non-static field. */
+
 	instanceField = null;
+
+	/** Markup for the section of a page that documents an item's instance/non-static properties. */
+
 	instancePropertySection = null;
+
+	/** Markup for a documented instance/non-static property. */
+
 	instanceProperty = null;
+
+	/** Markup for the section of a page that documents an item's instance/non-static methods. */
+
 	instanceMethodSection = null;
+
+	/** Markup for a documented instance/non-static method. */
+
 	instanceMethod = null;
+
+	/** Markup for the section of a page that documents an item's instance/non-static events. */
+
 	instanceEventSection = null;
+
+	/** Markup for a documented instance/non-static event. */
+
 	instanceEvent = null;
+
+	/** Markup for the section of a page that documents an item's public fields. */
+
 	publicFieldSection = null;
+
+	/** Markup for a documented public field. */
+
 	publicField = null;
+
+	/** Markup for the section of a page that documents an item's public properties. */
+
 	publicPropertySection = null;
+
+	/** Markup for a documented public property. */
+
 	publicProperty = null;
+
+	/** Markup for the section of a page that documents an item's public methods. */
+
 	publicMethodSection = null;
+
+	/** Markup for a documented public method. */
+
 	publicMethod = null;
+
+	/** Markup for the section of a page that documents an item's public events. */
+
 	publicEventSection = null;
+
+	/** Markup for a documented public event. */
+
 	publicEvent = null;
+
+	/** Markup for the section of a page that documents an item's protected fields. */
+
 	protectedFieldSection = null;
+
+	/** Markup for a documented protected field. */
+
 	protectedField = null;
+
+	/** Markup for the section of a page that documents an item's protected properties. */
+
 	protectedPropertySection = null;
+
+	/** Markup for a documented protected property. */
+
 	protectedProperty = null;
+
+	/** Markup for the section of a page that documents an item's protected methods. */
+
 	protectedMethodSection = null;
+
+	/** Markup for a documented protected method. */
+
 	protectedMethod = null;
+
+	/** Markup for the section of a page that documents an item's protected events. */
+
 	protectedEventSection = null;
+
+	/** Markup for a documented protected method. */
+
 	protectedEvent = null;
+
+	/** Markup for the section of a page that documents an item's static fields. */
+
 	staticFieldSection = null;
+
+	/** Markup for a documented static field. */
+
 	staticField = null;
+
+	/** Markup for the section of a page that documents an item's static properties. */
+
 	staticPropertySection = null;
+
+	/** Markup for a documented static property. */
+
 	staticProperty = null;
+
+	/** Markup for the section of a page that documents an item's static methods. */
+
 	staticMethodSection = null;
+
+	/** Markup for a documented static method. */
+
 	staticMethod = null;
+
+	/** Markup for the section of a page that documents an item's static events. */
+
 	staticEventSection = null;
+
+	/** Markup for a documented static event. */
+
 	staticEvent = null;
+
+	/** Markup for the section of a page that documents an item's public static fields. */
+
 	publicStaticFieldSection = null;
+
+	/** Markup for a documented public static field. */
+
 	publicStaticField = null;
+
+	/** Markup for the section of a page that documents an item's public static properties. */
+
 	publicStaticPropertySection = null;
+
+	/** Markup for a documented public static property. */
+
 	publicStaticProperty = null;
+
+	/** Markup for the section of a page that documents an item's public static methods. */
+
 	publicStaticMethodSection = null;
+	
+	/** Markup for a documented public static method. */
+
 	publicStaticMethod = null;
+
+	/** Markup for the section of a page that documents an item's public static events. */
+
 	publicStaticEventSection = null;
+
+	/** Markup for a documented public static event. */
+
 	publicStaticEvent = null;
+
+	/** Markup for the section of a page that documents an item's protected static fields. */
+
 	protectedStaticFieldSection = null;
+
+	/** Markup for a documented protected static field. */
+
 	protectedStaticField = null;
+
+	/** Markup for the section of a page that documents an item's protected static properties. */
+
 	protectedStaticPropertySection = null;
+
+	/** Markup for a documented protected static property. */
+
 	protectedStaticProperty = null;
+	/** Markup for the section of a page that documents an item's protected static methods. */
+
 	protectedStaticMethodSection = null;
+
+	/** Markup for a documented protected static method. */
+
 	protectedStaticMethod = null;
+
+	/** Markup for the section of a page that documents an item's protected static events. */
+
 	protectedStaticEventSection = null;
+
+	/** Markup for a documented protected static event. */
+
 	protectedStaticEvent = null;
+
+	/** Markup for the section of a field or property page's that documents its type. */
+
 	typeSection = null;
+
+	/** Markup for the section of a method's page that documents its parameters. */
+
 	parameterSection = null;
+
+	/** Markup for a documented method parameter. */
+
 	parameter = null;
+
+	/** Markup for the section of a method's page that documents its return value. */
+
 	returnSection = null;
+
+	/** Markup for the section of a method's page that documents its overloards. */
+
 	overloadSection = null;
+
+	/** Markup for the section of an enum's page that documents its values. */
+
 	valueSection = null;
 
+	/** Markup for a documented enum value. */
+
+	value = null;
+
+	/**
+	 * Object populated in updateMemberSections that contains all templates for all field sections:
+	 * all: this.fieldSection,
+	 * instance: this.instanceFieldSection,
+	 * public: this.publicFieldSection,
+	 * protected: this.protectedFieldSection,
+	 * static: this.staticFieldSection,
+	 * publicStatic: this.publicStaticFieldSection,
+	 * protectedStatic: this.protectedStaticFieldSection
+	 */
+
 	fieldSections = null;
+
+	/**
+	 * Object populated in updateMemberSections that contains all templates for all property sections:
+	 * all: this.propertySection,
+	 * instance: this.instancePropertySection,
+	 * public: this.publicPropertySection,
+	 * protected: this.protectedPropertySection,
+	 * static: this.staticPropertySection,
+	 * publicStatic: this.publicStaticPropertySection,
+	 * protectedStatic: this.protectedStaticPropertySection
+	 */
+
 	propertySections = null;
+
+	/**
+	 * Object populated in updateMemberSections that contains all templates for all method sections:
+	 * all: this.methodSection,
+	 * instance: this.instanceMethodSection,
+	 * public: this.publicMethodSection,
+	 * protected: this.protectedMethodSection,
+	 * static: this.staticMethodSection,
+	 * publicStatic: this.publicStaticMethodSection,
+	 * protectedStatic: this.protectedStaticMethodSection
+	 */
+
 	methodSections = null;
+
+	/**
+	 * Object populated in updateMemberSections that contains all templates for event sections:
+	 * all: this.eventSection,
+	 * instance: this.instanceEventSection,
+	 * public: this.publicEventSection,
+	 * protected: this.protectedEventSection,
+	 * static: this.staticEventSection,
+	 * publicStatic: this.publicStaticEventSection,
+	 * protectedStatic: this.protectedStaticEventSection
+	 */
+
 	eventSections = null;
 
+	/**
+	 * Object populated in updateMembers that contains all templates for all fields:
+	 * all: this.field,
+	 * instance: this.instanceField,
+	 * public: this.publicField,
+	 * protected: this.protectedField,
+	 * static: this.staticField,
+	 * publicStatic: this.publicStaticField,
+	 * protectedStatic: this.protectedStaticField
+	 */
+
 	fields = null;
+
+	/**
+	 * Object populated in updateMembers that contains all templates for all properties:
+	 * all: this.property,
+	 * instance: this.instanceProperty,
+	 * public: this.publicProperty,
+	 * protected: this.protectedProperty,
+	 * static: this.staticProperty,
+	 * publicStatic: this.publicStaticProperty,
+	 * protectedStatic: this.protectedStaticProperty
+	 */
+
 	properties = null;
+
+	/**
+	 * Object populated in updateMembers that contains all templates for all methods:
+	 * all: this.method,
+	 * instance: this.instanceMethod,
+	 * public: this.publicMethod,
+	 * protected: this.protectedMethod,
+	 * static: this.staticMethod,
+	 * publicStatic: this.publicStaticMethod,
+	 * protectedStatic: this.protectedStaticMethod
+	 */
+
 	methods = null;
+
+	/**
+	 * Object populated in updateMembers that contains all templates for all events:
+	 * all: this.event,
+	 * instance: this.instanceEvent,
+	 * public: this.publicEvent,
+	 * protected: this.protectedEvent,
+	 * static: this.staticEvent,
+	 * publicStatic: this.publicStaticEvent,
+	 * protectedStatic: this.protectedStaticEvent
+	 */
+
 	events = null;
 
 	constructor(templates)
@@ -175,6 +490,8 @@ export default class DocBuilderTemplates
 		}
 	}
 
+	/** Populates the fieldSections, propertySections, methodSections and eventSections properties. */
+
 	updateMemberSections()
 	{
 		this.fieldSections = new DocBuilderMemberTemplates({
@@ -217,6 +534,8 @@ export default class DocBuilderTemplates
 			protectedStatic: this.protectedStaticEventSection
 		});
 	}
+
+	/** Populates the fields, properties, methods and events properties. */
 
 	updateMembers()
 	{
@@ -261,6 +580,8 @@ export default class DocBuilderTemplates
 		});
 	}
 
+	/** Creates a new DocBuilderTemplates object from the contents of given files. */
+
 	static fromFiles(filePath, fileNames)
 	{
 		let templates = {};
@@ -272,6 +593,8 @@ export default class DocBuilderTemplates
 
 		return new DocBuilderTemplates(templates);
 	}
+
+	/** Returns the leading whitespace before a given variable in a given template string. */
 
 	static leadingWhitespace(varName, template)
 	{
