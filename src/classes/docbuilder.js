@@ -23,16 +23,16 @@ export default class DocBuilder extends EventTarget
 	/** File extension for built pages. */
 	outputFileExtension = null;
 
-	/** Root path for relative/absolute urls in the documentation pages. */
-	rootPath = null;
+	/** URL path to the documentation site root on the server/hosting environment. */
+	urlRootPath = null;
 
-	/** Relative path from the root path to the API docuementation pages. */
-	apiPath = null;
+	/** Relative path from `urlRootPath` to the documentation files. */
+	apiSubPath = null;
 
 	/** Optional padding for parameters between brackets. */
 	parameterPadding = null;
 
-	constructor(namespaces, definitions, templates, outputPath, outputFileExtension, rootPath, apiPath)
+	constructor(namespaces, definitions, templates, outputPath, outputFileExtension, urlRootPath, apiSubPath)
 	{
 		super();
 		this.namespaces = namespaces || null;
@@ -40,8 +40,8 @@ export default class DocBuilder extends EventTarget
 		this.templates = templates || null;
 		this.outputPath = outputPath || null;
 		this.outputFileExtension = outputFileExtension || 'html';
-		this.rootPath = rootPath || null;
-		this.apiPath = apiPath || null;
+		this.urlRootPath = urlRootPath || null;
+		this.apiSubPath = apiSubPath || null;
 	}
 
 	buildDocs()
@@ -247,11 +247,11 @@ export default class DocBuilder extends EventTarget
 		}
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -357,11 +357,11 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -432,11 +432,11 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -507,13 +507,13 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		// TODO Fix leading whitespace.
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -676,13 +676,13 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		// TODO Fix leading whitespace.
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -737,11 +737,11 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let rootPath = this.rootPath;
+		let urlRootPath = this.urlRootPath;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), rootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -1382,6 +1382,6 @@ export default class DocBuilder extends EventTarget
 
 	#getFileURL(definition)
 	{
-		return this.rootPath + '/' + this.apiPath + '/' + this.#getFilePathName(definition);
+		return this.urlRootPath + '/' + this.apiSubPath + '/' + this.#getFilePathName(definition);
 	}
 }

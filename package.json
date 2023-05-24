@@ -5,7 +5,10 @@
 	"type": "module",
 	"main": "./src/doxsite.js",
 	"scripts": {
-		"test": "node test.js"
+		"create-doxyproj": "src/cli/createdoxyproj.js"
+	},
+	"bin": {
+		"doxsite-createproj": "src/cli/createdoxyproj.js"
 	},
 	"keywords": [
 		"doxygen",

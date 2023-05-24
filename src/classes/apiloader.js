@@ -23,8 +23,8 @@ export default class APILoader extends EventTarget
 	// TODO Need to add namespaces in final pass as regex method of assigning them is unreliable.
 
 	xmlPath = null;
-	indexFileBaseName = null;
-	maxConcurrentElements = null;
+	xmlIndexFile = null;
+
 	json = null;
 	namespaces = [];
 	definitions = {};
@@ -32,12 +32,11 @@ export default class APILoader extends EventTarget
 	#loading = false;
 	#objects = [];
 
-	constructor(xmlPath, indexFileBaseName, maxConcurrentElements)
+	constructor(xmlPath, xmlIndexFile)
 	{
 		super();
-		this.xmlPath = xmlPath;
-		this.indexFileBaseName = indexFileBaseName;
-		this.maxConcurrentElements = maxConcurrentElements;
+		this.xmlPath = xmlPath || null;
+		this.xmlIndexFile = xmlIndexFile || null;
 		this.namespaces = [];
 	}
 
@@ -45,7 +44,7 @@ export default class APILoader extends EventTarget
 	{
 		if (!this.#loading)
 		{
-			let rawXML = shell.cat(this.xmlPath + '/' + this.indexFileBaseName + '.xml');
+			let rawXML = shell.cat(this.xmlPath + '/' + this.xmlIndexFile);
 
 			let xml = APILoader.#sanitiseXMLContent(rawXML);
 

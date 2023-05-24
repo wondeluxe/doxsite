@@ -23,16 +23,26 @@ It is worth noting that only the XML output is required to use the doxsite packa
 Before running Doxygen, ensure the following options are set in the Doxygen config:
 
 ```
+ALWAYS_DETAILED_SEC = YES
+EXTRACT_STATIC      = YES
 GENERATE_XML        = YES
 XML_PROGRAMLISTING  = YES
 ```
 
 These options ensure the data required by the doxsite package will be generated.
 
+Additionally, the source input will need to be configured using the `INPUT` option.
+
+The following options are also recommended to be set:
+
+```
+RECURSIVE           = YES
+```
+
 
 ### **HTML templates**
 
-The website will be constructed using template HTML to build each page of documentation. Templates can be provided as individual text/html files or as raw strings. Each template may contain 1 or more variables that will be substuted by a `DocBuilder` object when the documentation site is built.
+The website will be constructed using template HTML to build each page of documentation. Templates can be provided as individual text/html files or as raw strings. Each template may contain 1 or more variables that will be substituted by a `DocBuilder` object when the documentation site is built.
 
 Templates are provided as an object with the properties listed below. Only the **page** property is required, it is up to the website author to decide on the structure of the page template and to make use of the other templates as required.
 
