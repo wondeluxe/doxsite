@@ -71,12 +71,12 @@ else
 
 	console.log('Build documentation site', args, options, buildConfig);
 
-	// if (options.runDoxygen)
-	// {
-	// 	Doxsite.runBuild(options.doxyfile, buildConfig);
-	// }
-	// else
-	// {
-	// 	Doxsite.buildDocs(buildConfig);
-	// }
+	if (options.runDoxygen)
+	{
+		Doxsite.runBuild(options.doxyfile, buildConfig);
+	}
+	else
+	{
+		Doxsite.buildDocs(buildConfig);
+	}
 }

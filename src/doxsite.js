@@ -79,7 +79,7 @@ export class Doxsite
 		let docBuilder = new DocBuilder();
 		docBuilder.namespaces = apiLoader.namespaces;
 		docBuilder.definitions = apiLoader.definitions;
-		docBuilder.templates = typeof(config.templates == 'string') ? DocBuilderTemplates.fromFile(config.templates) : config.templates ? DocBuilderTemplates.fromJSON(config.templates) : Doxsite.#getDefaultTempaltes();
+		docBuilder.templates = (typeof(config.templates) == 'string') ? DocBuilderTemplates.fromFile(config.templates) : config.templates ? DocBuilderTemplates.fromJSON(config.templates) : Doxsite.#getDefaultTempaltes();
 		docBuilder.outputPath = config.outputPath || 'API';
 		docBuilder.outputFileExtension = config.outputFileExtension || 'html';
 		docBuilder.urlRootPath = config.urlRootPath || '/';
