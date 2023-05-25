@@ -1,15 +1,35 @@
 /**
- * Defines the template HTML markup for object members for a DocBuilder.
+ * Defines the template HTML markup for members of an object. Used by `DocBuilder`.
  */
 
 export default class DocBuilderMemberTemplates
 {
+	/** @type {String} Template for all members of an object. */
+
 	all = null;
+
+	/** @type {String} Template for all instance members of an object. */
+
 	instance = null;
+
+	/** @type {String} Template for all public members of an object. */
+
 	public = null;
+
+	/** @type {String} Template for all protected members of an object. */
+
 	protected = null;
+
+	/** @type {String} Template for all static members of an object. */
+
 	static = null;
+
+	/** @type {String} Template for all public static members of an object. */
+
 	publicStatic = null;
+
+	/** @type {String} Template for all protected static members of an object. */
+
 	protectedStatic = null;
 
 	constructor(templates)
