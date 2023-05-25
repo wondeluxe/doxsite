@@ -3,42 +3,80 @@
 'use strict';
 
 import { Doxsite } from '../doxsite.js';
-
-// TODO Replace shelljs with fs.
+import fs from 'fs';
 
 // import shell from 'shelljs';
 
-console.log('doxsite (cli)');
-console.log('argv', process.argv);
-console.log('env', process.env);
-console.log('pwd', process.env.PWD);
+// console.log('doxsite (cli)');
+// console.log('argv', process.argv);
+// console.log('env', process.env);
+// console.log('pwd', process.env.PWD);
 
+if (process.argv[2] == '-h' || process.argv[2] == '--help')
+{
+	let file = import.meta.url.match(/^file:\/\/(.+)\/([^\/]+)$/);
+	let path = file[1];
 
-// TODO Process arguments.
-// if (args.createProject)
-// {
-// 	Doxsite.createProject(projectPath);
-// }
+	console.log(fs.readFileSync(path + '/man.txt', { encoding: 'UTF-8' }));
+}
+else if (process.argv[2] == '-n' || process.argv[2] == '--new-project')
+{
+	console.log('Create new project...');
+	Doxsite.createProject(process.argv[3] || null);
+}
+else
+{
+	let argIsArg = (index) => {
+		return (process.argv.length > index) ? !!process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a)$/) : false;
+	};
 
+	let argIsValue = (index) => {
+		return (process.argv.length > index) ? !process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a)$/) : false;
+	};
 
-// meta url is the file path including the file:// protocol.
-// Regex matches file path (index 1) and file name (index 2).
+	let args = {};
 
-// let file = import.meta.url.match(/^file:\/\/(.+)\/([^\/]+)$/);
-// let templateDir = file[1] + '/template';
-// let projectDir = (process.argv.length > 2) ? process.argv[2] : process.env.PWD;
+	for (let i = 2; i < process.argv.length; i++)
+	{
+		console.log('Process argument ' + i + ': ' + process.argv[i]);
 
-// console.log('file', file);
-// console.log('templateDir:', templateDir);
-// console.log('projectDir:', projectDir);
+		if (argIsArg(i))
+		{
+			if (process.argv[i] == '-d')
+			{
+				args['--run-doxygen'] = true;
+			}
 
-// shell.mkdir('-p', projectDir + '/doxygen/XML');
-// shell.mkdir('-p', projectDir + '/develop/API');
-// shell.mkdir('-p', projectDir + '/develop/styles');
-// shell.mkdir('-p', projectDir + '/templates');
+			if (argIsValue(i + 1))
+			{
+				args[process.argv[i]] = process.argv[++i];
+			}
+		}
+	}
 
-// shell.cp('-u', templateDir + '/Doxyfile', projectDir + '/doxygen/Doxyfile');
-// shell.cp('-u', templateDir + '/documentation.css', projectDir + '/develop/styles/documentation.css');
-// shell.cp('-u', templateDir + '/*.html', projectDir + '/templates');
+	let options = {
+		runDoxygen: !!args['--run-doxygen'],
+		doxyfile: args['-d']
+	};
 
-Doxsite.createProject(process.argv.length > 2 ? process.argv[2] : null);
+	let buildConfig = {
+		xmlPath: args['-x'],
+		xmlIndexFile: args['-i'],
+		templates: args['-t'],
+		outputPath: args['-o'],
+		outputFileExtension: args['-e'],
+		urlRootPath: args['-r'],
+		apiSubPath: args['-a']
+	};
+
+	console.log('Build documentation site', args, options, buildConfig);
+
+	// if (options.runDoxygen)
+	// {
+	// 	Doxsite.runBuild(options.doxyfile, buildConfig);
+	// }
+	// else
+	// {
+	// 	Doxsite.buildDocs(buildConfig);
+	// }
+}
