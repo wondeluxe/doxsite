@@ -8,7 +8,7 @@
 		"create-doxyproj": "src/cli/createdoxyproj.js"
 	},
 	"bin": {
-		"doxsite-createproj": "src/cli/createdoxyproj.js"
+		"doxsite": "src/cli/cli.js"
 	},
 	"keywords": [
 		"doxygen",
