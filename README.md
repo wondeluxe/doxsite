@@ -16,6 +16,16 @@ This package uses XML output from [Doxygen](https://www.doxygen.nl/index.html) t
 
 It is worth noting that only the XML output is required to use the doxsite package, so all other forms of output can be ignored.
 
+## **CLI**
+
+```
+$ doxsite -x doxygen/XML -o develop/API -r /test -a API
+```
+
+```
+$ doxsite -x doxygen/XML -t templates/templates.json -o develop/API -r /test -a API
+```
+
 ## **Manual**
 
 ### **Running Doxygen**
