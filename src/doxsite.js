@@ -167,42 +167,9 @@ export class Doxsite
 	static #getDefaultTempaltes()
 	{
 		let file = import.meta.url.match(/^file:\/\/(.+)\/([^\/]+)$/);
-		let templatePath = file[1] + '/templates/html';
+		let templateFile = file[1] + '/templates/templates.json';
 
-		return DocBuilderTemplates.fromJSON({
-			filePath: templatePath,
-			files: {
-				page: 'page.html',
-				memberDeclaration: 'memberdeclaration.html',
-				memberInherits: 'memberinherits.html',
-				memberImplements: 'memberimplements.html',
-				memberNamespace: 'membernamespace.html',
-				memberAssembly: 'memberassembly.html',
-				navNamespace: 'navnamespace.html',
-				navMember: 'navmember.html',
-				typeParameterSection: 'typeparametersection.html',
-				typeParameter: 'typeparameter.html',
-				fieldSection: 'fieldsection.html',
-				field: 'field.html',
-				propertySection: 'propertysection.html',
-				property: 'property.html',
-				methodSection: 'methodsection.html',
-				method: 'method.html',
-				eventSection: 'eventsection.html',
-				event: 'event.html',
-				staticFieldSection: 'staticfieldsection.html',
-				staticPropertySection: 'staticpropertysection.html',
-				staticMethodSection: 'staticmethodsection.html',
-				staticEventSection: 'staticeventsection.html',
-				typeSection: 'typesection.html',
-				parameterSection: 'parametersection.html',
-				parameter: 'parameter.html',
-				returnSection: 'returnsection.html',
-				overloadSection: 'overloadsection.html',
-				valueSection: 'valuesection.html',
-				value: 'value.html'
-			}
-		});
+		return DocBuilderTemplates.fromFile(templateFile);
 	}
 
 	static #resolvePath(path)

@@ -524,6 +524,22 @@ export default class DocBuilderTemplates
 		let content = fs.readFileSync(filePath, { encoding: 'UTF-8' });
 		let json = JSON.parse(content);
 
+		// Strip trailing slash.
+
+		json.filePath = json.filePath.replace(/\/+$/, '');
+
+		// Ensure filePath is relative to the given JSON file if it's not an absolute path.
+
+		if (json.filePath.indexOf('/') != 0)
+		{
+			let file = filePath.match(/(.+)\/([^\/]+)$/);
+
+			if (file)
+			{
+				json.filePath = file[1] + '/' + json.filePath;
+			}
+		}
+
 		return DocBuilderTemplates.fromJSON(json);
 	}
 
