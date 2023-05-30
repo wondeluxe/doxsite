@@ -5,6 +5,7 @@ Utility for creating highly customised documentation websites with XML generated
 This package has been created with C# projects in mind. Doxygen is capable of producing data for a number of programming languages, however this package has not been tested with data from projects other than C#.
 
 - [Requirements](#requirements)
+- [Installation](#installation)
 - [Getting started](#getting-started)
 	1. [Create a new project](#1-create-a-new-project)
 	1. [Modify Doxygen input](#2-modify-doxygen-input)
@@ -24,6 +25,17 @@ This package has been created with C# projects in mind. Doxygen is capable of pr
 This package uses XML output from [Doxygen](https://www.doxygen.nl/index.html) to generate a documentation website for annotated C# code. See the [Getting started](https://www.doxygen.nl/manual/starting.html) page on the Doxygen website for details on installing and running Doxygen.
 
 It is worth noting that only the XML output is required to use the doxsite package, so all other forms of output can be ignored.
+
+## **Installation**
+
+It is recommended to install doxsite globally, so as to get access to the command line interface (CLI). The CLI will make creating new projects easier as well as give you the option to forego additional node scripts for building your documentation site.
+
+To install globally:
+
+```
+$ npm install -g doxsite
+```
+
 
 ## **Getting started**
 
@@ -300,6 +312,23 @@ $ doxsite [options...]
 
 
 ### **JavaScript**
+
+#### **Doxsite.createProject([projectPath])**
+
+```js
+import { Doxsite } from 'doxsite';
+
+Doxsite.createProject('./Documentation');
+```
+
+Create a new project at a specified path. Creates a 'doxygen' folder containing a Doxyfile and XML folder for Doxygen output, a 'develop' folder for the site with a default stylesheet and JavaScript, as well as a 'templates' folder, containing default html templates for building a documentation site.
+
+**Parameters**
+
+| Name        | Type   | Description |
+| ----------- | ------ | ----------- |
+| projectPath | String | Path to create the project at. If no path is provided the project will be created in the current working directory. |
+
 
 #### **Doxsite.buildDocs([config])**
 
