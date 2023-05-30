@@ -36,6 +36,12 @@ To install globally:
 $ npm install -g doxsite
 ```
 
+If you would like to use the package in your node scripts after installing globally, you will need to link doxsite to your local project:
+
+```
+$ npm link doxsite
+```
+
 
 ## **Getting started**
 
