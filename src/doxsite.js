@@ -89,8 +89,8 @@ export class Doxsite
 	}
 
 	/**
-	 * Create a new project at a specified path. Creates a 'doxygen' folder containing a Doxyfile and XML folder for Doxygen output, and a 'develop'
-	 * folder for the site with a default stylesheet.
+	 * Create a new project at a specified path. Creates a 'doxygen' folder containing a Doxyfile and XML folder for Doxygen output, a 'develop' folder for the site with a default stylesheet and JavaScript,
+	 * as well as a 'templates' folder, containing default html templates for building a documentation site.
 	 * @param {String} [projectPath] - Path to create the project at. If no path is provided the project will be created in the current working directory.
 	 */
 
