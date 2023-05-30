@@ -17,6 +17,7 @@ This package has been created with C# projects in mind. Doxygen is capable of pr
 - [Manual](#manual)
 	- [CLI](#cli)
 	- [JavaScript](#javascript)
+- [Support](#support)
 
 ## **Requirements**
 
@@ -364,7 +365,7 @@ Run Doxygen from the command line and build the documentation site. This method 
 
 #### **BuildConfig object**
 
-Defines options to use for Doxesite.buildDocs.
+Defines options to use for Doxsite.buildDocs.
 
 | Option              | Type           | Description |
 | ------------------- | -------------- | ----------- |
@@ -375,3 +376,7 @@ Defines options to use for Doxesite.buildDocs.
 | outputFileExtension | String         | File extension documentation files use, typically html, but could also be php. 'html' used if omitted. |
 | urlRootPath         | String         | URL path to the documentation site root on the server/hosting environment. '/' used if omitted. |
 | apiSubPath          | String         | Relative path from **urlRootPath** to the documentation pages. 'API' used if omitted. |
+
+## **Support**
+
+doxsite is an open-source project that only gets attention around paid work. If you like the tool, consider donating to my [PayPal](https://paypal.me/wondeluxe).

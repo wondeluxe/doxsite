@@ -1,6 +1,6 @@
 import DocBuilderTemplates from './docbuildertemplates.js';
 import DocBuilderVars from './docbuildervars.js';
-import shell from 'shelljs';
+import fs from 'fs';
 
 /**
  * Generates API documentation.
@@ -347,7 +347,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#buildFieldPage(definition, navSection)
@@ -424,7 +424,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#buildPropertyPage(definition, navSection)
@@ -499,7 +499,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#buildMethodPage(definition, navSection)
@@ -668,7 +668,7 @@ export default class DocBuilder extends EventTarget
 
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#buildEventPage(definition, navSection)
@@ -729,7 +729,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#buildEnumPage(definition, navSection)
@@ -810,7 +810,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valueSection);
 		// page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		shell.echo(page).to(this.outputPath + '/' + filePathName);
+		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
 	}
 
 	#constructNavNamespace(namespace)
@@ -848,7 +848,7 @@ export default class DocBuilder extends EventTarget
 			}
 		}
 
-		shell.mkdir('-p', this.outputPath + '/' + namespace.qualifiedName.replace(/\./g, '/'));
+		fs.mkdirSync(this.outputPath + '/' + namespace.qualifiedName.replace(/\./g, '/'), { recursive: true });
 
 		return navNamespace.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBERS), navMembers.join('\n' + navMemberLeadingWhitespace));
 	}
@@ -1382,6 +1382,6 @@ export default class DocBuilder extends EventTarget
 
 	#getFileURL(definition)
 	{
-		return this.urlRootPath + '/' + this.apiSubPath + '/' + this.#getFilePathName(definition);
+		return this.urlRootPath.replace(/\/+$/, '') + '/' + this.apiSubPath.replace(/\/+$/, '') + '/' + this.#getFilePathName(definition);
 	}
 }

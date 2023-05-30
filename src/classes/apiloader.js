@@ -9,10 +9,8 @@ import APIProperty from './apiproperty.js';
 import APIMethod from './apimethod.js';
 import APIParameter from './apiparameter.js';
 import APIEvent from './apievent.js';
-
+import fs from 'fs';
 import { XMLParser } from 'fast-xml-parser';
-
-import shell from 'shelljs';
 
 /**
  * Loads APIObjects from a source index xml file.
@@ -44,7 +42,7 @@ export default class APILoader extends EventTarget
 	{
 		if (!this.#loading)
 		{
-			let rawXML = shell.cat(this.xmlPath + '/' + this.xmlIndexFile);
+			let rawXML = fs.readFileSync(this.xmlPath + '/' + this.xmlIndexFile, { encoding: 'UTF-8' });
 
 			let xml = APILoader.#sanitiseXMLContent(rawXML);
 
@@ -89,7 +87,7 @@ export default class APILoader extends EventTarget
 
 	#loadDefinition(defFileBaseName)
 	{
-		let rawXML = shell.cat(this.xmlPath + '/' + defFileBaseName + '.xml');
+		let rawXML = fs.readFileSync(this.xmlPath + '/' + defFileBaseName + '.xml', { encoding: 'UTF-8' });
 
 		let xml = APILoader.#sanitiseXMLContent(rawXML);
 

@@ -3,8 +3,8 @@
 import apiloader from './classes/apiloader.js';
 import docbuildertemplates from './classes/docbuildertemplates.js';
 import docbuilder from './classes/docbuilder.js';
-// import shell from 'shelljs';
 import fs from 'fs';
+import childProcess from 'child_process';
 
 export const APILoader = apiloader;
 export const DocBuilderTemplates = docbuildertemplates;
@@ -38,9 +38,7 @@ export class Doxsite
 
 	static runDoxygen(doxyfile)
 	{
-		console.log('Run doxygen', doxyfile);
-		// shell.exec('doxygen ' + doxyfile);
-		console.log('Doxygen complete!');
+		childProcess.execSync(doxyfile ? ('doxygen ' + doxyfile) : 'doxygen');
 	}
 
 	/**
@@ -98,17 +96,6 @@ export class Doxsite
 
 	static createProject(projectPath)
 	{
-		// if (!projectPath)
-		// {
-		// 	projectPath = process.env.PWD;
-		// }
-		// else if (projectPath.indexOf('/') != 0)
-		// {
-		// 	projectPath = process.env.PWD + '/' + projectPath;
-		// }
-
-		// projectPath = projectPath.replace(/\/+$/, '');
-
 		projectPath = Doxsite.#resolvePath(projectPath);
 
 		// meta url is the file path including the file:// protocol.
@@ -117,27 +104,13 @@ export class Doxsite
 		let file = import.meta.url.match(/^file:\/\/(.+)\/([^\/]+)$/);
 		let templatePath = file[1] + '/templates';
 
-		console.log('Doxsite.createProject', {
-			// file: file,
-			templatePath: templatePath,
-			projectPath: projectPath
-		});
-
-		// shell.mkdir('-p', projectPath + '/doxygen/XML');
-		// shell.mkdir('-p', projectPath + '/develop/API');
-		// shell.mkdir('-p', projectPath + '/develop/styles');
-		// shell.mkdir('-p', projectPath + '/templates');
-
-		// shell.cp('-u', templatePath + '/Doxyfile', projectPath + '/doxygen/Doxyfile');
-		// shell.cp('-u', templatePath + '/documentation.css', projectPath + '/develop/styles/documentation.css');
-		// shell.cp('-u', templatePath + '/*.html', projectPath + '/templates');
-
 		let mkdirOptions = { recursive: true };
 
 		fs.mkdirSync(projectPath + '/doxygen/XML', mkdirOptions);
 		fs.mkdirSync(projectPath + '/develop/API', mkdirOptions);
 		fs.mkdirSync(projectPath + '/develop/styles', mkdirOptions);
-		fs.mkdirSync(projectPath + '/templates', mkdirOptions);
+		fs.mkdirSync(projectPath + '/develop/scripts', mkdirOptions);
+		fs.mkdirSync(projectPath + '/templates/html', mkdirOptions);
 
 		let copyFile = (src, dest) => {
 			try
@@ -155,12 +128,14 @@ export class Doxsite
 
 		copyFile(templatePath + '/Doxyfile', projectPath + '/doxygen/Doxyfile');
 		copyFile(templatePath + '/documentation.css', projectPath + '/develop/styles/documentation.css');
+		copyFile(templatePath + '/nav.js', projectPath + '/develop/scripts/nav.js');
+		copyFile(templatePath + '/templates.json', projectPath + '/templates/templates.json');
 
 		let htmlFiles = fs.readdirSync(templatePath + '/html');
 
 		for (let f = 0; f < htmlFiles.length; f++)
 		{
-			copyFile(templatePath + '/html/' + htmlFiles[f], projectPath + '/templates/' + htmlFiles[f]);
+			copyFile(templatePath + '/html/' + htmlFiles[f], projectPath + '/templates/html/' + htmlFiles[f]);
 		}
 	}
 

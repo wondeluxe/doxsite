@@ -5,13 +5,6 @@
 import { Doxsite } from '../doxsite.js';
 import fs from 'fs';
 
-// import shell from 'shelljs';
-
-// console.log('doxsite (cli)');
-// console.log('argv', process.argv);
-// console.log('env', process.env);
-// console.log('pwd', process.env.PWD);
-
 if (process.argv[2] == '-h' || process.argv[2] == '--help')
 {
 	let file = import.meta.url.match(/^file:\/\/(.+)\/([^\/]+)$/);
@@ -21,7 +14,6 @@ if (process.argv[2] == '-h' || process.argv[2] == '--help')
 }
 else if (process.argv[2] == '-n' || process.argv[2] == '--new-project')
 {
-	console.log('Create new project...');
 	Doxsite.createProject(process.argv[3] || null);
 }
 else
@@ -38,8 +30,6 @@ else
 
 	for (let i = 2; i < process.argv.length; i++)
 	{
-		console.log('Process argument ' + i + ': ' + process.argv[i]);
-
 		if (argIsArg(i))
 		{
 			if (process.argv[i] == '-d')
@@ -68,8 +58,6 @@ else
 		urlRootPath: args['-r'],
 		apiSubPath: args['-a']
 	};
-
-	console.log('Build documentation site', args, options, buildConfig);
 
 	if (options.runDoxygen)
 	{
