@@ -180,6 +180,11 @@ a
 #nav-tree li > div:hover + span
 {
 	color: #d80034;
+}
+
+#nav-tree li > a:focus,
+#nav-tree li > a:hover
+{
 	text-decoration: underline;
 }
 
