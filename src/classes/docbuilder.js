@@ -247,7 +247,7 @@ export default class DocBuilder extends EventTarget
 		}
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		let page = templates.page;
 
@@ -357,7 +357,7 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		let page = templates.page;
 
@@ -432,7 +432,7 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		let page = templates.page;
 
@@ -507,7 +507,7 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		// TODO Fix leading whitespace.
 
@@ -676,7 +676,7 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		// TODO Fix leading whitespace.
 
@@ -737,7 +737,7 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath;
+		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
 
 		let page = templates.page;
 
