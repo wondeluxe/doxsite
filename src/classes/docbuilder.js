@@ -279,6 +279,8 @@ export default class DocBuilder extends EventTarget
 
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -372,6 +374,8 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -447,6 +451,8 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -524,6 +530,8 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -693,6 +701,8 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
@@ -752,6 +762,8 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
@@ -855,11 +867,11 @@ export default class DocBuilder extends EventTarget
 
 	#constructMemberSection(template, access, membersVar, members)
 	{
-		console.log('constructMemberSection', {
-			access: access,
-			membersVar: membersVar,
-			members: members
-		});
+		// console.log('constructMemberSection', {
+		// 	access: access,
+		// 	membersVar: membersVar,
+		// 	members: members
+		// });
 
 		let leadingWhitespace = DocBuilderTemplates.leadingWhitespace(membersVar, template);
 
@@ -931,20 +943,17 @@ export default class DocBuilder extends EventTarget
 		return content;
 	}
 
-	#constructType(definition)
-	{
+	// #constructType(definition)
+	// {
+	// }
 
-	}
+	// #constructParameter(definition)
+	// {
+	// }
 
-	#constructParameter(definition)
-	{
-
-	}
-
-	#constructReturns(definition)
-	{
-
-	}
+	// #constructReturns(definition)
+	// {
+	// }
 
 	#constructTitleText(text)
 	{
@@ -1246,6 +1255,26 @@ export default class DocBuilder extends EventTarget
 		return definition.assembly;
 	}
 
+	#constructOwner(definition)
+	{
+		if (definition.owner)
+		{
+			return this.#constructReference(definition.owner) + '.';
+		}
+
+		return '';
+	}
+
+	#constructOwnerName(definition)
+	{
+		if (definition.owner)
+		{
+			return this.#constructReference(definition.owner);
+		}
+
+		return '';
+	}
+
 	#constructPropertyAccess(definition)
 	{
 		let accessors = [];
@@ -1332,6 +1361,8 @@ export default class DocBuilder extends EventTarget
 
 	#replaceIDLinks(text)
 	{
+		// Replace id with url to page.
+
 		text = text.replace(/(?<=href=")(.*?)(?=")/g, ((id) => {
 			let definition = this.definitions[id];
 			if (definition)
@@ -1340,6 +1371,8 @@ export default class DocBuilder extends EventTarget
 			}
 			return '';
 		}).bind(this));
+
+		// Links to template types?
 
 		text = text.replace(/^\w+|(?<=[\s,]|&lt;)\w+/g, ((word) => {
 			for (let id in this.definitions)

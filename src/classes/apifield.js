@@ -37,6 +37,9 @@ export default class APIField
 	/** Name of the kind of definition. */
 	definitionType = 'field';
 
+	/** Reference to the class, struct or interface in which the field was defined. */
+	owner = null;
+
 	/** Unique id assigned to the field. */
 	id = null;
 }

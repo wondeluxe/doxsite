@@ -40,6 +40,9 @@ export default class APIObject
 	/** Name of the kind of definition (class, struct or interface). */
 	definitionType = null;
 
+	/** Reference to the class, struct or interface in which this class, struct or interface was defined. */
+	owner = null;
+
 	/** Unique id assigned to the class, struct or interface. */
 	id = null;
 }

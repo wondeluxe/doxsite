@@ -131,7 +131,7 @@ export default class APILoader extends EventTarget
 			case 'class':
 			case 'struct':
 			case 'interface':
-				this.#objects.push(this.#processObject(json.compounddef));
+				this.#objects.push(this.#processObject(json.compounddef, null));
 				break;
 			default:
 				console.warn('Unhandled definition element kind "' + json.compounddef.attributes.kind + '".', json);
@@ -148,7 +148,7 @@ export default class APILoader extends EventTarget
 
 		if (json.sectiondef)
 		{
-			let methods = {};// name: [APIReference]
+			let methods = {};
 
 			for (let s = 0; s < json.sectiondef.length; s++)
 			{
@@ -173,20 +173,20 @@ export default class APILoader extends EventTarget
 						case 'function':
 							// C# doesn't support global functions so any function declared directly in a namespace will be a delegate.
 
-							let apiMethod = this.#processMethod(memberdef, true, apiNamespace.qualifiedName);
+							let apiMethod = this.#processMethod(memberdef, null, apiNamespace.qualifiedName);
 
-							let apiReference = new APIReference();
+							let methodReference = new APIReference();
 
-							apiReference.id = apiMethod.id;
-							apiReference.qualifiedName = apiMethod.qualifiedName;
-							apiReference.name = apiMethod.name;
+							methodReference.id = apiMethod.id;
+							methodReference.qualifiedName = apiMethod.qualifiedName;
+							methodReference.name = apiMethod.name;
 
 							if (!methods[apiMethod.name])
 							{
 								methods[apiMethod.name] = [];
 							}
 
-							methods[apiMethod.name].push(apiReference);
+							methods[apiMethod.name].push(methodReference);
 
 							apiNamespace.members.push(apiMethod);
 							break;
@@ -248,11 +248,12 @@ export default class APILoader extends EventTarget
 		return apiEnum;
 	}
 
-	#processObject(json)
+	#processObject(json, owner)
 	{
 		let apiObject = new APIObject();
 
 		apiObject.id = json.attributes.id;
+		apiObject.owner = owner;
 		apiObject.definitionType = json.attributes.kind;
 		apiObject.qualifiedName = APILoader.#stripTypeParameters(json.compoundname.replace(/::/g, '.'));
 		apiObject.name = apiObject.qualifiedName.match(/[^\.]+$/)[0];
@@ -261,6 +262,11 @@ export default class APILoader extends EventTarget
 		apiObject.assembly = apiObject.namespace;// Data not included in xml, assume namespaces map to assemblies or figure out another way to implement.
 		apiObject.shortDescription = APILoader.#extractDescription(json.briefdescription);
 		apiObject.description = apiObject.shortDescription + APILoader.#extractDescription(json.detaileddescription);
+
+		let objectReference = new APIReference();
+		objectReference.id = apiObject.id;
+		objectReference.qualifiedName = apiObject.qualifiedName;
+		objectReference.name = apiObject.name;
 
 		if (json.templateparamlist && json.templateparamlist.param)
 		{
@@ -287,30 +293,30 @@ export default class APILoader extends EventTarget
 			{
 				let baseref = json.basecompoundref[b];
 
-				let apiReference = new APIReference();
+				let baseReference = new APIReference();
 
-				apiReference.id = baseref.attributes.refid || null;
-				apiReference.qualifiedName = APILoader.#stripTypeParameters(baseref.textcontent);
-				apiReference.name = apiReference.qualifiedName.match(/[^\.]+$/)[0];
+				baseReference.id = baseref.attributes.refid || null;
+				baseReference.qualifiedName = APILoader.#stripTypeParameters(baseref.textcontent);
+				baseReference.name = baseReference.qualifiedName.match(/[^\.]+$/)[0];
 
-				if ((apiReference.id && apiReference.id.match(/^interface_/)) || apiReference.name.match(/I[A-Z]\w+/))
+				if ((baseReference.id && baseReference.id.match(/^interface_/)) || baseReference.name.match(/I[A-Z]\w+/))
 				{
 					// Interfaces that are defined in the project will have a reference that begins with 'interface_', however the xml data
 					// doesn't include data for interfaces that are defined externally. When this is the case we'll assume the base is an
 					// interface if it begins with capital I and is followed by a word.
 
-					apiObject.implements.push(apiReference);
+					apiObject.implements.push(baseReference);
 				}
 				else
 				{
-					apiObject.inherits.push(apiReference);
+					apiObject.inherits.push(baseReference);
 				}
 			}
 		}
 
 		if (json.sectiondef)
 		{
-			let methods = {};// name: [APIReference]
+			let methods = {};
 
 			for (let s = 0; s < json.sectiondef.length; s++)
 			{
@@ -330,31 +336,31 @@ export default class APILoader extends EventTarget
 					switch (memberdef.attributes.kind)
 					{
 						case 'variable':
-							apiObject.members.push(this.#processField(memberdef));
+							apiObject.members.push(this.#processField(memberdef, objectReference));
 							break;
 						case 'property':
-							apiObject.members.push(this.#processProperty(memberdef));
+							apiObject.members.push(this.#processProperty(memberdef, objectReference));
 							break;
 						case 'function':
-							let apiMethod = this.#processMethod(memberdef, false, null);
+							let apiMethod = this.#processMethod(memberdef, objectReference, null);
 
-							let apiReference = new APIReference();
+							let methodReference = new APIReference();
 
-							apiReference.id = apiMethod.id;
-							apiReference.qualifiedName = apiMethod.qualifiedName;
-							apiReference.name = apiMethod.name;
+							methodReference.id = apiMethod.id;
+							methodReference.qualifiedName = apiMethod.qualifiedName;
+							methodReference.name = apiMethod.name;
 
 							if (!methods[apiMethod.name])
 							{
 								methods[apiMethod.name] = [];
 							}
 
-							methods[apiMethod.name].push(apiReference);
+							methods[apiMethod.name].push(methodReference);
 
 							apiObject.members.push(apiMethod);
 							break;
 						case 'event':
-							apiObject.members.push(this.#processEvent(memberdef));
+							apiObject.members.push(this.#processEvent(memberdef, objectReference));
 							break;
 						default:
 							console.warn('Unhandled object member kind "' + memberdef.attributes.kind + '".', memberdef);
@@ -390,11 +396,12 @@ export default class APILoader extends EventTarget
 		return apiObject;
 	}
 
-	#processField(json)
+	#processField(json, owner)
 	{
 		let apiField = new APIField();
 
 		apiField.id = json.attributes.id;
+		apiField.owner = owner;
 		apiField.qualifiedName = json.qualifiedname;
 		apiField.name = json.name;
 		apiField.type = APILoader.#typeToHTML(json.type);
@@ -406,11 +413,12 @@ export default class APILoader extends EventTarget
 		return apiField;
 	}
 
-	#processProperty(json)
+	#processProperty(json, owner)
 	{
 		let apiProperty = new APIProperty();
 
 		apiProperty.id = json.attributes.id;
+		apiProperty.owner = owner;
 		apiProperty.qualifiedName = json.qualifiedname;
 		apiProperty.name = json.name;
 		apiProperty.type = APILoader.#typeToHTML(json.type);
@@ -424,18 +432,19 @@ export default class APILoader extends EventTarget
 		return apiProperty;
 	}
 
-	#processMethod(json, delegate, namespace)
+	#processMethod(json, owner, namespace)
 	{
 		let apiMethod = new APIMethod();
 
 		apiMethod.id = json.attributes.id;
-		apiMethod.definitionType = delegate ? 'delegate' : 'method';
+		apiMethod.owner = owner;
+		apiMethod.definitionType = owner ? 'method' : 'delegate';
 		apiMethod.qualifiedName = APILoader.#stripTypeParameters(json.qualifiedname);
 		apiMethod.name = APILoader.#stripTypeParameters(json.name);
 		apiMethod.type = APILoader.#typeToHTML(json.type);// Return type or "void".
 		apiMethod.access = json.attributes.prot;
 		apiMethod.static = (json.attributes.static == 'yes');
-		apiMethod.delegate = delegate;
+		apiMethod.delegate = !owner;
 		apiMethod.namespace = namespace;
 		apiMethod.assembly = namespace;
 		apiMethod.shortDescription = APILoader.#extractDescription(json.briefdescription);
@@ -489,11 +498,12 @@ export default class APILoader extends EventTarget
 		return apiMethod;
 	}
 
-	#processEvent(json)
+	#processEvent(json, owner)
 	{
 		let apiEvent = new APIEvent();
 
 		apiEvent.id = json.attributes.id;
+		apiEvent.owner = owner;
 		apiEvent.qualifiedName = APILoader.#stripTypeParameters(json.qualifiedname);
 		apiEvent.name = APILoader.#stripTypeParameters(json.name);
 		apiEvent.type = APILoader.#typeToHTML(json.type);

@@ -43,6 +43,9 @@ export default class APIProperty
 	/** Name of the kind of definition. */
 	definitionType = 'property';
 
+	/** Reference to the class, struct or interface in which the property was defined. */
+	owner = null;
+
 	/** Unique id assigned to the property. */
 	id = null;
 }

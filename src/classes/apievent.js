@@ -37,6 +37,9 @@ export default class APIEvent
 	/** Name of the kind of definition. */
 	definitionType = 'event';
 
+	/** Reference to the class, struct or interface in which the event was defined. */
+	owner = null;
+
 	/** Unique id assigned to the event. */
 	id = null;
 }

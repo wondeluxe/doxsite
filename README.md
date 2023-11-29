@@ -225,6 +225,8 @@ The following variables are used in the HTML templates and replaced when constru
 | $memberimplements               | Used in the **page** template where interfaces a documented item implements should be inserted. |
 | $membernamespace                | Used in the **page** template where a documented item's containing namespace should be inserted. |
 | $memberassembly                 | Used in the **page** template where a documented item's containing assembly should be inserted. Limited as Doxygen doesn't export assembly data. The namespace is assumed as assembly. |
+| $memberowner                    | Used in the **page** template where a documented item's owning type should be inserted with a trailing "." separator. |
+| $memberownername                | Used in the **page** template where a documented item's owning type's name should be inserted. |
 | $descriptionsection             | Used in the **page** template where a documented item's description should be inserted. |
 | $typeparametersection           | Used in the **page** template where a documented item's type/template parameters should be inserted. |
 | $typeparameters                 | Used in the **typeParameterSection** template where the individual type/template parameters should be inserted. |

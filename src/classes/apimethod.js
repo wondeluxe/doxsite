@@ -52,6 +52,9 @@ export default class APIMethod
 	/** Name of the kind of definition. */
 	definitionType = 'method';
 
+	/** Reference to the class, struct or interface in which the method was defined. */
+	owner = null;
+
 	/** Unique id assigned to the method. */
 	id = null;
 }

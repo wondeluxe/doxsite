@@ -31,6 +31,9 @@ export default class APIEnum
 	/** Name of the kind of definition. */
 	definitionType = 'enum';
 
+	/** Reference to the class, struct or interface in which the enum was defined. */
+	owner = null;
+
 	/** Unique id assigned to the enum. */
 	id = null;
 }

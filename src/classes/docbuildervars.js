@@ -19,6 +19,8 @@ export default class DocBuilderVars
 	static MEMBER_IMPLEMENTS = '$memberimplements';
 	static MEMBER_NAMESPACE = '$membernamespace';
 	static MEMBER_ASSEMBLY = '$memberassembly';
+	static MEMBER_OWNER = '$memberowner';
+	static MEMBER_OWNER_NAME = '$memberownername';
 	static DESCRIPTION_SECTION = '$descriptionsection';
 	static TYPE_PARAMETER_SECTION = '$typeparametersection';
 	static TYPE_PARAMETERS = '$typeparameters';
@@ -92,9 +94,9 @@ export default class DocBuilderVars
 	{
 		if (includeLeadingWhitespace)
 		{
-			return new RegExp('\s*\\' + varName + '(?![a-zA-Z])', 'g');
+			return new RegExp('\s*\\' + varName + '(?![a-z])', 'g');
 		}
 
-		return new RegExp('\\' + varName + '(?![a-zA-Z])', 'g');
+		return new RegExp('\\' + varName + '(?![a-z])', 'g');
 	}
 }
