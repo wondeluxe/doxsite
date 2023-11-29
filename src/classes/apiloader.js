@@ -620,7 +620,7 @@ export default class APILoader extends EventTarget
 		{
 			let currNamespace = namespaces[n];
 
-			if (currNamespace.qualifiedName.indexOf(prevNamespace.qualifiedName) == 0)
+			if (currNamespace.qualifiedName.indexOf(prevNamespace.qualifiedName + '.') == 0)
 			{
 				let nestedNamespaceName = currNamespace.qualifiedName.substr(prevNamespace.qualifiedName.length + 1);
 				let nestedNamespaceNames = nestedNamespaceName.split('.');
