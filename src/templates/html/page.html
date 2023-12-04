@@ -8,6 +8,20 @@
 	<body>
 		<header>
 			<span id="documentation-title"><strong>API Documentation</strong></span>
+			<form id="documentation-search-form" class="search-form" role="search" method="GET" action="search.html">
+				&nbsp;
+				<div class="search-content">
+					<div class="search-box">
+						<input class="search-box-input" role="combobox" type="text" name="q" autocomplete="off" autocapitalize="none" autocorrect="off" placeholder="Search&hellip;" minlength="1" required><!-- value="Charizard Tyranitar Magnezone" -->
+						<div class="search-box-buttons">
+							<button class="clear-button" type="reset" disabled></button>
+							<button class="search-button" type="submit" disabled></button>
+						</div>
+					</div>
+					<ul class="search-suggestions-list" role="list">
+					</ul>
+				</div>
+			</form>
 		</header>
 		<main>
 			<div id="nav-tree">
