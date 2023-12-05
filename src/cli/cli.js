@@ -19,11 +19,11 @@ else if (process.argv[2] == '-n' || process.argv[2] == '--new-project')
 else
 {
 	let argIsArg = (index) => {
-		return (process.argv.length > index) ? !!process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a)$/) : false;
+		return (process.argv.length > index) ? !!process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a|-s)$/) : false;
 	};
 
 	let argIsValue = (index) => {
-		return (process.argv.length > index) ? !process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a)$/) : false;
+		return (process.argv.length > index) ? !process.argv[index].match(/^(-h|--help|-n|--new-project|-d|-x|-i|-t|-o|-e|-r|-a|-s)$/) : false;
 	};
 
 	let args = {};
@@ -56,7 +56,8 @@ else
 		outputPath: args['-o'],
 		outputFileExtension: args['-e'],
 		urlRootPath: args['-r'],
-		apiSubPath: args['-a']
+		apiSubPath: args['-a'],
+		searchdataSubPath: args['-s']
 	};
 
 	if (options.runDoxygen)

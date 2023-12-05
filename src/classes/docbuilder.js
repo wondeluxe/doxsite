@@ -1,6 +1,28 @@
 import DocBuilderTemplates from './docbuildertemplates.js';
 import DocBuilderVars from './docbuildervars.js';
+import APINamespace from './apinamespace.js';
+import APIEnum from './apienum.js';
+import APIEnumValue from './apienumvalue.js';
+import APIObject from './apiobject.js';
+import APIField from './apifield.js';
+import APIProperty from './apiproperty.js';
+import APIMethod from './apimethod.js';
+import APIParameter from './apiparameter.js';
+import APIEvent from './apievent.js';
 import fs from 'fs';
+
+/**
+ * An API definition.
+ * @typedef {APINamespace|APIObject|APIField|APIProperty|APIMethod|APIEvent|APIEnum|APIEnumValue|APIParameter} APIDefinition
+ */
+
+/**
+ * Search information for a documented object.
+ * @typedef {Object} SearchDef
+ * @property {String} name - Name of the documented object.
+ * @property {String} description - Description of the documented object.
+ * @property {String} url - Page URL of the documented object.
+ */
 
 /**
  * Generates API documentation.
@@ -8,44 +30,132 @@ import fs from 'fs';
 
 export default class DocBuilder extends EventTarget
 {
-	/** Array of APINamespaces, containing members, to build the documentation for. */
-	namespaces = null;
+	/**
+	 * Object containing search information for all documented objects in the API.
+	 * @type {Object.<string, SearchDef[]]>}
+	 */
 
-	/** Object containing all members to build documentation for, referenced by id. */
-	definitions = null;
+	#searchData = null;
 
-	/** Template HTML markup to use when building documentation pages. */
-	templates = null;
+	/**
+	 * Initialize a new {@linkcode DocBuilder}.
+	 * @param {APINamespace[]} namespaces - {@link APINamespace APINamespaces} containing the members to build the documentation for.
+	 * @param {Object.<String, APIDefinition>} definitions - ID lookup for all API definitions to build documentation for.
+	 * @param {DocBuilderTemplates} templates - Template HTML markup to use when building documentation pages.
+	 * @param {String} outputPath - Path to the local root of the documentation site where pages will be created.
+	 * @param {String} outputFileExtension - File extension for built pages.
+	 * @param {String} urlRootPath - URL path to the documentation site root on the server/hosting environment.
+	 * @param {String} apiSubPath - Path relative from {@linkcode outputPath}/{@linkcode urlRootPath} where documentation pages will be created/located.
+	 * @param {String} searchdataSubPath - Path relative from {@linkcode outputPath}/{@linkcode urlRootPath} where the search data file (searchdata.js) will be created/located.
+	 */
 
-	/** Path where documentation pages will be built. */
-	outputPath = null;
-
-	/** File extension for built pages. */
-	outputFileExtension = null;
-
-	/** URL path to the documentation site root on the server/hosting environment. */
-	urlRootPath = null;
-
-	/** Relative path from `urlRootPath` to the documentation files. */
-	apiSubPath = null;
-
-	/** Optional padding for parameters between brackets. */
-	parameterPadding = null;
-
-	constructor(namespaces, definitions, templates, outputPath, outputFileExtension, urlRootPath, apiSubPath)
+	constructor(namespaces, definitions, templates, outputPath, outputFileExtension, urlRootPath, apiSubPath, searchdataSubPath)
 	{
 		super();
+
+		/**
+		 * {@link APINamespace APINamespaces} containing the members to build the documentation for.
+		 * @type APINamespace[]
+		 * */
+
 		this.namespaces = namespaces || null;
+
+		/**
+		 * ID lookup for all API definitions to build documentation for.
+		 * @type {Object.<String, APIDefinition>}
+		 */
+
 		this.definitions = definitions || null;
+
+		/**
+		 * Template HTML markup to use when building documentation pages.
+		 * @type DocBuilderTemplates
+		 */
+
 		this.templates = templates || null;
+
+		/**
+		 * Path to the local root of the documentation site where pages will be created.
+		 * @type String
+		 */
+
 		this.outputPath = outputPath || null;
+
+		/**
+		 * File extension for built pages. Defaults to `"html"`.
+		 * @type String
+		 */
+
 		this.outputFileExtension = outputFileExtension || 'html';
+
+		/**
+		 * URL path to the documentation site root on the server/hosting environment.
+		 * @type String
+		 */
+
 		this.urlRootPath = urlRootPath || null;
-		this.apiSubPath = apiSubPath || null;
+
+		/**
+		 * Path relative from {@linkcode outputPath}/{@linkcode urlRootPath} where documentation pages will be created/located.
+		 * Defaults to `"API"`.
+		 * @type String
+		 */
+
+		this.apiSubPath = apiSubPath || 'API';
+
+		/**
+		 * Path relative from {@linkcode outputPath}/{@linkcode urlRootPath} where the search data file (searchdata.js) will be created/located.
+		 * Defaults to `"scripts"`.
+		 * @type String
+		 */
+
+		this.searchdataSubPath = searchdataSubPath || 'scripts';
+
+		/**
+		 * Optional padding for parameters between brackets.
+		 * @type String
+		 */
+
+		this.parameterPadding = null;
 	}
+
+	/**
+	 * Build the documentation website with the DocBuilder's current properties.
+	 * Pages for documented types and members will be created at `outputPath/apiSubPath`.
+	 * A file named `searchdata.js` will be created at `outputPath/searchdataSubPath`.
+	 */
 
 	buildDocs()
 	{
+		if (!this.namespaces)
+		{
+			throw new Error('namespaces is null or undefined.');
+		}
+
+		if (!this.definitions)
+		{
+			throw new Error('definitions is null or undefined.');
+		}
+
+		if (!this.templates)
+		{
+			throw new Error('templates is null or undefined.');
+		}
+
+		if (!this.outputPath)
+		{
+			throw new Error('outputPath is null, undefined or empty.');
+		}
+
+		let trailingSlashes = /\/+$/;
+
+		this.outputPath = this.outputPath.replace(trailingSlashes, '');
+		this.urlRootPath = this.urlRootPath.replace(trailingSlashes, '');
+		this.apiSubPath = this.apiSubPath.replace(trailingSlashes, '');
+		this.searchdataSubPath = this.searchdataSubPath.replace(trailingSlashes, '');
+
+		this.#searchData = {};
+
 		let navSectionLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_SECTION, this.templates.page);
 
 		let namespaces = this.namespaces;
@@ -68,8 +178,34 @@ export default class DocBuilder extends EventTarget
 			this.#buildNamespacePages(namespaces[n], navSection);
 		}
 
+		let searchData = this.#searchData;
+		let searchDataStrings = [];
+
+		for (var searchValue in searchData)
+		{
+			let searchDefs = searchData[searchValue];
+			let searchDefStrings = [];
+
+			for (let i = 0; i < searchDefs.length; i++)
+			{
+				searchDefStrings.push('{name: "' + searchDefs[i].name + '", description: "' + searchDefs[i].description.replace(/\"/g, '\\\"') + '", url: "' + searchDefs[i].url + '"}');
+			}
+
+			searchDataStrings.push(searchValue + ': [\n\t\t' + searchDefStrings.join(',\n\t\t') + '\n\t]');
+		}
+
+		let searchFileText = 'export default {\n\t' + searchDataStrings.join(',\n\t') + '\n}';
+
+		fs.writeFileSync(this.searchFilePath + '/searchdata.js', searchFileText);
+
 		this.dispatchEvent(new Event('complete'));
 	}
+
+	/**
+	 * Build pages for the members of a namespace.
+	 * @param {APINamespace} namespace - The namespace to build pages for.
+	 * @param {String} navSection - Markup to insert for the nav section of the page.
+	 */
 
 	#buildNamespacePages(namespace, navSection)
 	{
@@ -102,8 +238,16 @@ export default class DocBuilder extends EventTarget
 		}
 	}
 
+	/**
+	 * Build the documentation pages for a class, struct or interface, and its members.
+	 * @param {APIObject} definition - The definition of the class, struct or interface to build the documentation pages for.
+	 * @param {String} navSection - Markup to insert for the nav section of the page.
+	 */
+
 	#buildObjectPage(definition, navSection)
 	{
+		this.#addSearchData(definition);
+
 		let templates = this.templates;
 
 		let fieldSections = {
@@ -246,12 +390,9 @@ export default class DocBuilder extends EventTarget
 			}
 		}
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
-
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -349,21 +490,20 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#buildFieldPage(definition, navSection)
 	{
+		this.#addSearchData(definition);
+
 		// TODO Ensure Type is linked if defined in package.
 
 		let templates = this.templates;
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
-
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -428,19 +568,18 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#buildPropertyPage(definition, navSection)
 	{
-		let templates = this.templates;
+		this.#addSearchData(definition);
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
+		let templates = this.templates;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -505,21 +644,20 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#buildMethodPage(definition, navSection)
 	{
-		let templates = this.templates;
+		this.#addSearchData(definition);
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
+		let templates = this.templates;
 
 		// TODO Fix leading whitespace.
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -676,21 +814,20 @@ export default class DocBuilder extends EventTarget
 
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#buildEventPage(definition, navSection)
 	{
-		let templates = this.templates;
+		this.#addSearchData(definition);
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
+		let templates = this.templates;
 
 		// TODO Fix leading whitespace.
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -739,19 +876,18 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#buildEnumPage(definition, navSection)
 	{
-		let templates = this.templates;
+		this.#addSearchData(definition);
 
-		let filePathName = this.#getFilePathName(definition);
-		let urlRootPath = this.urlRootPath.replace(/\/+$/, '');
+		let templates = this.templates;
 
 		let page = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
@@ -822,7 +958,7 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valueSection);
 		// page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.outputPath + '/' + filePathName, page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
 	#constructNavNamespace(namespace)
@@ -847,7 +983,7 @@ export default class DocBuilder extends EventTarget
 				case 'delegate':
 					let navMember = this.templates.navMember;
 					navMember = navMember.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_NAME), member.name);
-					navMember = navMember.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_URL), this.#getFileURL(member));
+					navMember = navMember.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_URL), this.#getAPIFileURL(member));
 					navMember = navMember.replace(/\n/g, '\n' + navMemberLeadingWhitespace);
 					navMembers.push(navMember);
 					break;
@@ -1294,7 +1430,7 @@ export default class DocBuilder extends EventTarget
 
 	#constructMethodName(definition)
 	{
-		let methodName = '<a class="member-name" href="' + this.#getFileURL(definition) + '">' + definition.name + '</a>';
+		let methodName = '<a class="member-name" href="' + this.#getAPIFileURL(definition) + '">' + definition.name + '</a>';
 
 		if (definition.types && definition.types.length)
 		{
@@ -1324,14 +1460,9 @@ export default class DocBuilder extends EventTarget
 				paramComponents.push(this.#replaceIDLinks(param.type) + ' ' + param.name);
 			}
 
-			let padding = this.parameterPadding;
+			let padding = this.parameterPadding || '';
 
-			if (padding)
-			{
-				return padding + paramComponents.join(' ') + padding;
-			}
-
-			return paramComponents.join(', ');
+			return padding + paramComponents.join(' ') + padding;
 		}
 
 		return '';
@@ -1345,10 +1476,10 @@ export default class DocBuilder extends EventTarget
 		{
 			if (classes)
 			{
-				return '<a class="' + classes + '" href="' + this.#getFileURL(definition) + '">' + definition.name + '</a>';
+				return '<a class="' + classes + '" href="' + this.#getAPIFileURL(definition) + '">' + definition.name + '</a>';
 			}
 
-			return '<a href="' + this.#getFileURL(definition) + '">' + definition.name + '</a>';
+			return '<a href="' + this.#getAPIFileURL(definition) + '">' + definition.name + '</a>';
 		}
 
 		if (classes)
@@ -1359,6 +1490,28 @@ export default class DocBuilder extends EventTarget
 		return reference.name;
 	}
 
+	/**
+	 * Add search details to {@linkcode searchData}.
+	 * @param {APIDefinition} definition - API definition to create the search data for.
+	 */
+
+	#addSearchData(definition)
+	{
+		let data = this.#searchData;
+		let text = definition.name.toLowerCase();
+
+		if (!data[text])
+		{
+			data[text] = [];
+		}
+
+		data[text].push({
+			name: definition.owner ? this.definitions[definition.owner.id].name + '.' + definition.name : definition.name,
+			description: definition.description,
+			url: this.#getAPIFileURL(definition)
+		});
+	}
+
 	#replaceIDLinks(text)
 	{
 		// Replace id with url to page.
@@ -1367,7 +1520,7 @@ export default class DocBuilder extends EventTarget
 			let definition = this.definitions[id];
 			if (definition)
 			{
-				return this.#getFileURL(definition);
+				return this.#getAPIFileURL(definition);
 			}
 			return '';
 		}).bind(this));
@@ -1387,7 +1540,7 @@ export default class DocBuilder extends EventTarget
 						case 'interface':
 						case 'enum':
 						case 'delegate':
-							return '<a href="' + this.#getFileURL(definition) + '">' + word + '</a>';
+							return '<a href="' + this.#getAPIFileURL(definition) + '">' + word + '</a>';
 					}
 				}
 			}
@@ -1397,7 +1550,13 @@ export default class DocBuilder extends EventTarget
 		return text;
 	}
 
-	#getFilePathName(definition)
+	/**
+	 * Returns the relative page file path name (from {@linkcode outputPath}/{@linkcode urlRootPath}) for a given API definition.
+	 * @param {APIDefinition} definition - The API definition to get the file path name for.
+	 * @returns {String} A file path name.
+	 */
+
+	#getAPIFilePathName(definition)
 	{
 		let filePath = definition.namespace.replace(/\./g, '/');
 		let fileBaseName = definition.qualifiedName.substr(definition.namespace.length + 1);
@@ -1406,15 +1565,39 @@ export default class DocBuilder extends EventTarget
 		{
 			for (let i = 0; i < definition.params.length; i++)
 			{
-				fileBaseName += '-' + definition.params[i].type.replace(/<\/?a[^>]*>/g, '');
+				// fileBaseName += '-' + definition.params[i].type.replace(/<\/?a[^>]*>/g, '');
+
+				let paramTypeName = definition.params[i].type.trim();
+				paramTypeName = paramTypeName.replace(/<\/?[^>]*>/g, '');// Strip tags, such a links.
+				paramTypeName = paramTypeName.replace(/\s*\[\]/g, '_');// Replace array brackets with underscore.
+				paramTypeName = paramTypeName.match(/\w+$/)[0];// Pulls out the last word in the param type name (stripping parent type/s or keywords such as out or ref).
+
+				fileBaseName += '-' + paramTypeName;
 			}
 		}
 
-		return filePath + '/' + fileBaseName + '.' + this.outputFileExtension;
+		return this.apiSubPath + '/' + filePath + '/' + fileBaseName + '.' + this.outputFileExtension;
 	}
 
-	#getFileURL(definition)
+	/**
+	 * Returns the output page file path name of a given API definition.
+	 * @param {APIDefinition} definition - The API definition to get the page file name for.
+	 * @returns {String} A file path name.
+	 */
+
+	#getAPIFileOutputPathName(definition)
 	{
-		return this.urlRootPath.replace(/\/+$/, '') + '/' + this.apiSubPath.replace(/\/+$/, '') + '/' + this.#getFilePathName(definition);
+		return this.outputPath + '/' + this.#getAPIFilePathName(definition);
+	}
+
+	/**
+	 * Get the URL for the page of a given API definition.
+	 * @param {APIDefinition} definition - The API definition to get the page URL for.
+	 * @returns {String} A URL.
+	 */
+
+	#getAPIFileURL(definition)
+	{
+		return this.urlRootPath + '/' + this.#getAPIFilePathName(definition);
 	}
 }
