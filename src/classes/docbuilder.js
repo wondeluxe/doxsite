@@ -196,7 +196,7 @@ export default class DocBuilder extends EventTarget
 
 		let searchFileText = 'export default {\n\t' + searchDataStrings.join(',\n\t') + '\n}';
 
-		fs.writeFileSync(this.searchFilePath + '/searchdata.js', searchFileText);
+		fs.writeFileSync(this.#getOutputPath(this.searchdataSubPath) + '/searchdata.js', searchFileText);
 
 		this.dispatchEvent(new Event('complete'));
 	}
@@ -961,6 +961,12 @@ export default class DocBuilder extends EventTarget
 		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
 	}
 
+	/**
+	 * Constructs the navigation panel HTML for an API namespace and creates the required directory structure for its pages at `outputPath/apiSubPath`.
+	 * @param {APINamespace} namespace - The namespace to construct the markup and directory structure for.
+	 * @returns String A HTML string.
+	 */
+
 	#constructNavNamespace(namespace)
 	{
 		let navNamespace = this.templates.navNamespace;
@@ -996,7 +1002,7 @@ export default class DocBuilder extends EventTarget
 			}
 		}
 
-		fs.mkdirSync(this.outputPath + '/' + namespace.qualifiedName.replace(/\./g, '/'), { recursive: true });
+		fs.mkdirSync(this.#getAPINamespaceOutputPath(namespace.qualifiedName), { recursive: true });
 
 		return navNamespace.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBERS), navMembers.join('\n' + navMemberLeadingWhitespace));
 	}
@@ -1462,7 +1468,7 @@ export default class DocBuilder extends EventTarget
 
 			let padding = this.parameterPadding || '';
 
-			return padding + paramComponents.join(' ') + padding;
+			return padding + paramComponents.join(', ') + padding;
 		}
 
 		return '';
@@ -1551,32 +1557,14 @@ export default class DocBuilder extends EventTarget
 	}
 
 	/**
-	 * Returns the relative page file path name (from {@linkcode outputPath}/{@linkcode urlRootPath}) for a given API definition.
-	 * @param {APIDefinition} definition - The API definition to get the file path name for.
-	 * @returns {String} A file path name.
+	 * Returns the output directory path for a given API namespace.
+	 * @param {String} qualifiedNamespace - The API namespace to get the directory path for.
+	 * @returns {String} A directory path.
 	 */
 
-	#getAPIFilePathName(definition)
+	#getAPINamespaceOutputPath(qualifiedNamespace)
 	{
-		let filePath = definition.namespace.replace(/\./g, '/');
-		let fileBaseName = definition.qualifiedName.substr(definition.namespace.length + 1);
-
-		if (definition.overloads && definition.overloads.length && definition.params && definition.params.length)
-		{
-			for (let i = 0; i < definition.params.length; i++)
-			{
-				// fileBaseName += '-' + definition.params[i].type.replace(/<\/?a[^>]*>/g, '');
-
-				let paramTypeName = definition.params[i].type.trim();
-				paramTypeName = paramTypeName.replace(/<\/?[^>]*>/g, '');// Strip tags, such a links.
-				paramTypeName = paramTypeName.replace(/\s*\[\]/g, '_');// Replace array brackets with underscore.
-				paramTypeName = paramTypeName.match(/\w+$/)[0];// Pulls out the last word in the param type name (stripping parent type/s or keywords such as out or ref).
-
-				fileBaseName += '-' + paramTypeName;
-			}
-		}
-
-		return this.apiSubPath + '/' + filePath + '/' + fileBaseName + '.' + this.outputFileExtension;
+		return this.#getOutputPath(this.#getAPINamespacePath(qualifiedNamespace));
 	}
 
 	/**
@@ -1587,7 +1575,18 @@ export default class DocBuilder extends EventTarget
 
 	#getAPIFileOutputPathName(definition)
 	{
-		return this.outputPath + '/' + this.#getAPIFilePathName(definition);
+		return this.#getOutputPath(this.#getAPIFilePathName(definition));
+	}
+
+	/**
+	 * Returns the full output path for a given sub path.
+	 * @param {String} subPath - The sub path to get the full output path for.
+	 * @returns String A path.
+	 */
+
+	#getOutputPath(subPath)
+	{
+		return subPath ? (this.outputPath ? this.outputPath + '/' + subPath : subPath) : this.outputPath;
 	}
 
 	/**
@@ -1599,5 +1598,72 @@ export default class DocBuilder extends EventTarget
 	#getAPIFileURL(definition)
 	{
 		return this.urlRootPath + '/' + this.#getAPIFilePathName(definition);
+	}
+
+	/**
+	 * Returns the relative directory path (from {@linkcode outputPath}/{@linkcode urlRootPath}) for a given API namespace.
+	 * @param {String} qualifiedNamespace - The API namespace to get the directory path for.
+	 * @returns String A directory path.
+	 */
+
+	#getAPINamespacePath(qualifiedNamespace)
+	{
+		let namespacePath = qualifiedNamespace.replace(/\./g, '/');
+
+		return this.apiSubPath ? this.apiSubPath + '/' + namespacePath : namespacePath;
+	}
+
+	/**
+	 * Returns the relative page file path name (from {@linkcode outputPath}/{@linkcode urlRootPath}) for a given API definition.
+	 * @param {APIDefinition} definition - The API definition to get the file path name for.
+	 * @returns {String} A file path name.
+	 */
+
+	#getAPIFilePathName(definition)
+	{
+		let fileBaseName = definition.qualifiedName.substr(definition.namespace.length + 1);
+
+		if (definition.overloads && definition.overloads.length)
+		{
+			if (definition.params && definition.params.length)
+			{
+				for (let i = 0; i < definition.params.length; i++)
+				{
+					fileBaseName += '-' + this.#getSafeTypeName(definition.params[i].type);
+				}
+			}
+
+			if (definition.type && definition.type != 'void')
+			{
+				fileBaseName += '--' + this.#getSafeTypeName(definition.type);
+			}
+
+			if (fileBaseName.indexOf(' ') != -1)
+			{
+				console.log('Overloaded method', definition);
+				throw 'Desired file name "' + fileBaseName + '" contains spaces.';
+			}
+		}
+
+		return this.#getAPINamespacePath(definition.namespace) + '/' + fileBaseName + '.' + this.outputFileExtension;
+	}
+
+	/**
+	 * Converts a type name so that it can be safely used in a file name.
+	 * @param {String} typeName - The type name to convert.
+	 * @returns {String} A safe name.
+	 */
+
+	#getSafeTypeName(typeName)
+	{
+		typeName = typeName.trim();
+		typeName = typeName.replace(/<\/?[^>]*>/g, '');// Strip tags, such a links.
+		typeName = typeName.replace(/\s*&lt;\s*/g, '_');// Replace opening template bracket with underscore.
+		typeName = typeName.replace(/\s*&gt;\s*/g, '');// Strip closing template bracket.
+		typeName = typeName.replace(/\s*,\s*/g, '_');// Replace template type separating comma with underscore.
+		typeName = typeName.replace(/\s*\[\]/g, '_');// Replace array brackets with underscore.
+		typeName = typeName.match(/\w+$/)[0];// Pulls out the last word in the param type name (stripping parent type/s or keywords such as out or ref).
+
+		return typeName;
 	}
 }
