@@ -7,7 +7,11 @@ import fs from 'fs';
 
 export default class DocBuilderTemplates
 {
-	/** @type {String} Main page template that all pages are constructed from. */
+	/** @type {String} Index page template. */
+
+	index = null;
+
+	/** @type {String} Main page template that all API pages are constructed from. */
 
 	page = null;
 
@@ -338,6 +342,7 @@ export default class DocBuilderTemplates
 	{
 		if (templates)
 		{
+			this.index = templates.index || null;
 			this.page = templates.page || null;
 			this.memberDeclaration = templates.memberDeclaration || null;
 			this.memberInherits = templates.memberInherits || null;
@@ -515,29 +520,33 @@ export default class DocBuilderTemplates
 	/**
 	 * Create a new DocBuilderTemplates instance using data from a JSON file.
 	 * This method loads the JSON file then parses its contents using `DocBuilderTemplates.fromJSON`.
-	 * @param {String} filePath - Path to a JSON file defining the templates.
+	 * @param {String} filePathName - Path to a JSON file defining the templates.
 	 * @returns {DocBuilderTemplates} A DocBuilderTemplates object containing the loaded template data.
 	 */
 
-	static fromFile(filePath)
+	static fromFile(filePathName)
 	{
-		let content = fs.readFileSync(filePath, { encoding: 'UTF-8' });
+		let content = fs.readFileSync(filePathName, { encoding: 'UTF-8' });
 		let json = JSON.parse(content);
 
-		// Strip trailing slash.
+		let path = filePathName.replace(/\/?[^\/]+$/, '');
 
-		json.filePath = json.filePath.replace(/\/+$/, '');
+		// Ensure required properties are present and valid.
 
-		// Ensure filePath is relative to the given JSON file if it's not an absolute path.
+		json.api = json.api || {};
+		json.api.files = json.api.files || {};
+		json.api.path = json.api.path ? json.api.path.replace(/\/+$/, '') : '';// Strip trailing slash if present.
 
-		if (json.filePath.indexOf('/') != 0)
+		// Ensure paths are relative to the given JSON file if it's not an absolute path.
+
+		if (json.index.indexOf('/') != 0)
 		{
-			let file = filePath.match(/(.+)\/([^\/]+)$/);
+			json.index = path ? path + '/' + json.index : json.index;
+		}
 
-			if (file)
-			{
-				json.filePath = file[1] + '/' + json.filePath;
-			}
+		if (json.api.path.indexOf('/') != 0)
+		{
+			json.api.path = json.api.path ? (path ? path + '/' + json.api.path : json.api.path) : path;
 		}
 
 		return DocBuilderTemplates.fromJSON(json);
@@ -546,18 +555,24 @@ export default class DocBuilderTemplates
 	/**
 	 * Create a new DocBuilderTemplates instance loading template files defined in a JSON object.
 	 * @param {Object} json - The JSON object to create the DocBuilderTemplates from.
-	 * @param {String} json.filePath - Path where templates files are located.
-	 * @param {Object} json.files - Object containing the file names of templates to load.
+	 * @param {String} json.index - Path to the index page file template.
+	 * @param {Object} json.api - Object containing templates for API pages.
+	 * @param {String} json.api.path - Path where API page template files are located.
+	 * @param {Object.<String, String>} json.api.files - Object containing template files for API pages.
 	 * @returns {DocBuilderTemplates} A DocBuilderTemplates object containing the loaded template data.
 	 */
 
 	static fromJSON(json)
 	{
-		let templates = {};
+		let templates = {
+			index: fs.readFileSync(json.index, { encoding: 'UTF-8' })
+		};
 
-		for (let name in json.files)
+		let apiPathWithSlash = json.api.path ? json.api.path.replace(/\/+$/, '') + '/' : '';
+
+		for (let name in json.api.files)
 		{
-			templates[name] = fs.readFileSync(json.filePath + '/' + json.files[name], { encoding: 'UTF-8' });
+			templates[name] = fs.readFileSync(apiPathWithSlash + json.api.files[name], { encoding: 'UTF-8' });
 		}
 
 		return new DocBuilderTemplates(templates);

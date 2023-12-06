@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>API Documentation</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="$rootpath/styles/documentation.css">
+	</head>
+	<body>
+		<header>
+			<span id="documentation-title"><strong>API Documentation</strong></span>
+			<form id="documentation-search-form" class="search-form" role="search" method="GET" action="search.html">
+				&nbsp;
+				<div class="search-content">
+					<div class="search-box">
+						<input class="search-box-input" role="combobox" type="text" name="q" autocomplete="off" autocapitalize="none" autocorrect="off" placeholder="Search&hellip;" minlength="1" required>
+						<div class="search-box-buttons">
+							<button class="clear-button" type="reset" disabled></button>
+							<button class="search-button" type="submit" disabled></button>
+						</div>
+					</div>
+					<ul class="search-suggestions-list" role="list">
+					</ul>
+				</div>
+			</form>
+		</header>
+		<main>
+			<div id="nav-tree">
+				<ul>
+					$navsection
+				</ul>
+			</div>
+			<div id="nav-handle">
+			</div>
+			<div id="content">
+				<h1>API Documentation</h1>
+				<p>
+					The following pages document the types and members included in the API.
+				</p>
+				<p>
+					Documented types are organised by namespace in the sidebar to the left. Or if you're looking for a specific type or member, you can use the search box at the top of the page.
+				</p>
+			</div>
+		</main>
+		<footer>
+			Made with <a href="https://github.com/wondeluxe/doxsite">Doxsite</a> and <a href="https://www.doxygen.nl">Doxygen</a>.
+		</footer>
+		<script src="$rootpath/scripts/nav.js" type="module"></script>
+	</body>
+</html>

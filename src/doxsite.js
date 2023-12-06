@@ -112,7 +112,7 @@ export class Doxsite
 		fs.mkdirSync(projectPath + '/develop/API', mkdirOptions);
 		fs.mkdirSync(projectPath + '/develop/styles', mkdirOptions);
 		fs.mkdirSync(projectPath + '/develop/scripts', mkdirOptions);
-		fs.mkdirSync(projectPath + '/templates/html', mkdirOptions);
+		fs.mkdirSync(projectPath + '/templates/api', mkdirOptions);
 
 		let copyFile = (src, dest) => {
 			try
@@ -133,11 +133,11 @@ export class Doxsite
 		copyFile(templatePath + '/nav.js', projectPath + '/develop/scripts/nav.js');
 		copyFile(templatePath + '/templates.json', projectPath + '/templates/templates.json');
 
-		let htmlFiles = fs.readdirSync(templatePath + '/html');
+		let htmlFiles = fs.readdirSync(templatePath + '/api');
 
 		for (let f = 0; f < htmlFiles.length; f++)
 		{
-			copyFile(templatePath + '/html/' + htmlFiles[f], projectPath + '/templates/html/' + htmlFiles[f]);
+			copyFile(templatePath + '/api/' + htmlFiles[f], projectPath + '/templates/api/' + htmlFiles[f]);
 		}
 	}
 
