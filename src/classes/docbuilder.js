@@ -173,6 +173,9 @@ export default class DocBuilder extends EventTarget
 		// console.log(navSectionLeadingWhitespace + navSection);
 
 		// Second iteration build the pages.
+
+		this.#buildIndexPage(navSection);
+
 		for (let n = 0; n < namespaces.length; n++)
 		{
 			this.#buildNamespacePages(namespaces[n], navSection);
@@ -202,9 +205,24 @@ export default class DocBuilder extends EventTarget
 	}
 
 	/**
+	 * Build the index page for the documentation site.
+	 * @param {String} navSection - HTML to insert for the nav section of the page.
+	 */
+
+	#buildIndexPage(navSection)
+	{
+		let page = this.templates.index;
+
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
+
+		fs.writeFileSync(this.#getOutputPath('index.' + this.outputFileExtension), page);
+	}
+
+	/**
 	 * Build pages for the members of a namespace.
 	 * @param {APINamespace} namespace - The namespace to build pages for.
-	 * @param {String} navSection - Markup to insert for the nav section of the page.
+	 * @param {String} navSection - HTML to insert for the nav section of the page.
 	 */
 
 	#buildNamespacePages(namespace, navSection)
