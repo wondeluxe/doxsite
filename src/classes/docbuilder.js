@@ -175,6 +175,7 @@ export default class DocBuilder extends EventTarget
 		// Second iteration build the pages.
 
 		this.#buildIndexPage(navSection);
+		this.#buildSearchPage(navSection);
 
 		for (let n = 0; n < namespaces.length; n++)
 		{
@@ -217,6 +218,21 @@ export default class DocBuilder extends EventTarget
 		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
 
 		fs.writeFileSync(this.#getOutputPath('index.' + this.outputFileExtension), page);
+	}
+
+	/**
+	 * Build the search page for the documentation site.
+	 * @param {String} navSection - HTML to insert for the nav section of the page.
+	 */
+
+	#buildSearchPage(navSection)
+	{
+		let page = this.templates.search;
+
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
+
+		fs.writeFileSync(this.#getOutputPath('search.' + this.outputFileExtension), page);
 	}
 
 	/**

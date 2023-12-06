@@ -11,6 +11,10 @@ export default class DocBuilderTemplates
 
 	index = null;
 
+	/** @type {String} Search page template. */
+
+	search = null;
+
 	/** @type {String} Main page template that all API pages are constructed from. */
 
 	page = null;
@@ -343,6 +347,7 @@ export default class DocBuilderTemplates
 		if (templates)
 		{
 			this.index = templates.index || null;
+			this.search = templates.search || null;
 			this.page = templates.page || null;
 			this.memberDeclaration = templates.memberDeclaration || null;
 			this.memberInherits = templates.memberInherits || null;
@@ -544,6 +549,11 @@ export default class DocBuilderTemplates
 			json.index = path ? path + '/' + json.index : json.index;
 		}
 
+		if (json.search.indexOf('/') != 0)
+		{
+			json.search = path ? path + '/' + json.search : json.search;
+		}
+
 		if (json.api.path.indexOf('/') != 0)
 		{
 			json.api.path = json.api.path ? (path ? path + '/' + json.api.path : json.api.path) : path;
@@ -556,6 +566,7 @@ export default class DocBuilderTemplates
 	 * Create a new DocBuilderTemplates instance loading template files defined in a JSON object.
 	 * @param {Object} json - The JSON object to create the DocBuilderTemplates from.
 	 * @param {String} json.index - Path to the index page file template.
+	 * @param {String} json.search - Path to the search page file template.
 	 * @param {Object} json.api - Object containing templates for API pages.
 	 * @param {String} json.api.path - Path where API page template files are located.
 	 * @param {Object.<String, String>} json.api.files - Object containing template files for API pages.
@@ -565,7 +576,8 @@ export default class DocBuilderTemplates
 	static fromJSON(json)
 	{
 		let templates = {
-			index: fs.readFileSync(json.index, { encoding: 'UTF-8' })
+			index: fs.readFileSync(json.index, { encoding: 'UTF-8' }),
+			search: fs.readFileSync(json.search, { encoding: 'UTF-8' })
 		};
 
 		let apiPathWithSlash = json.api.path ? json.api.path.replace(/\/+$/, '') + '/' : '';
