@@ -596,6 +596,8 @@ table.type .member-name
 	box-sizing: border-box;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	user-select: none;
+	cursor: pointer;
 }
 
 .search-suggestion:last-child
@@ -603,6 +605,7 @@ table.type .member-name
 	border-radius: 0 0 var(--search-box-border-radius) var(--search-box-border-radius);
 }
 
+.search-suggestion:hover,
 .search-suggestion.highlighted
 {
 	background-color: #daedff;

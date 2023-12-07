@@ -45,12 +45,6 @@ export default class SearchForm
 
 	#suggestionIndex = -1;
 
-	#onFocusListener;
-	#onBlurListener;
-	#onKeyDownListener;
-	#onKeyUpListener;
-	#onResetListener;
-
 	/**
 	 * Initialize a new SearchForm.
 	 * @param {HTMLFormElement} element - Form element of the SearchForm.
@@ -110,26 +104,17 @@ export default class SearchForm
 		this.suggestionLimit = suggestionLimit;
 
 		/**
-		 * Enabled state of the SearchForm.
-		 * @type Boolean
-		 */
-		
-		this.enabled = false;
-
-		/**
 		 * Are suggestions presented/visible for the user to select?
 		 * @type Boolean
 		 */
 
 		this.suggesting = false;
 
-		this.#onFocusListener = this.#onFocus.bind(this);
-		this.#onBlurListener = this.#onBlur.bind(this);
-		this.#onKeyDownListener = this.#onKeyDown.bind(this);
-		this.#onKeyUpListener = this.#onKeyUp.bind(this);
-		this.#onResetListener = this.#onReset.bind(this);
-
-		this.enable();
+		this.inputElement.addEventListener('focus', this.#onFocus.bind(this));
+		this.inputElement.addEventListener('blur', this.#onBlur.bind(this));
+		this.inputElement.addEventListener('keydown', this.#onKeyDown.bind(this));
+		this.inputElement.addEventListener('keyup', this.#onKeyUp.bind(this));
+		this.element.addEventListener('reset', this.#onReset.bind(this));
 	}
 
 	#refreshSuggestions()
@@ -267,12 +252,7 @@ export default class SearchForm
 			this.element.classList.remove('suggesting');
 			this.suggesting = false;
 		}
-		
 	}
-
-	// #onSubmit(evt)
-	// {
-	// }
 
 	/**
 	 * Handle focus on the SearchForm's {@linkcode inputElement}.
@@ -291,7 +271,18 @@ export default class SearchForm
 
 	#onBlur(evt)
 	{
-		this.#hideSuggestions();
+		if (evt.relatedTarget && evt.relatedTarget.parentNode == this.listElement)
+		{
+			let suggestionIndex = [...this.listElement.children].indexOf(evt.relatedTarget);
+			this.#showSuggestion(suggestionIndex);
+			evt.stopImmediatePropagation();
+			evt.preventDefault();
+			this.element.submit();
+		}
+		else
+		{
+			this.#hideSuggestions();
+		}
 	}
 
 	/**
@@ -377,43 +368,6 @@ export default class SearchForm
 		this.clearButton.disabled = true;
 		this.searchButton.disabled = true;
 
-		// TODO Restore focus to inputElement.
-	}
-
-	enable()
-	{
-		if (!this.enabled)
-		{
-			this.inputElement.addEventListener('focus', this.#onFocusListener);
-			this.inputElement.addEventListener('blur', this.#onBlurListener);
-			this.inputElement.addEventListener('keydown', this.#onKeyDownListener);
-			this.inputElement.addEventListener('keyup', this.#onKeyUpListener);
-			this.element.addEventListener('reset', this.#onResetListener);
-			this.enabled = true;
-		}
-	}
-
-	disable()
-	{
-		if (this.enabled)
-		{
-			this.inputElement.removeEventListener('focus', this.#onFocusListener);
-			this.inputElement.removeEventListener('blur', this.#onBlurListener);
-			this.inputElement.removeEventListener('keydown', this.#onKeyDownListener);
-			this.inputElement.removeEventListener('keyup', this.#onKeyUpListener);
-			this.element.removeEventListener('reset', this.#onResetListener);
-			this.enabled = false;
-		}
-	}
-
-	dispose()
-	{
-		this.disable();
-		this.element = null;
-		this.#onFocusListener = null;
-		this.#onBlurListener = null;
-		this.#onKeyDownListener = null;
-		this.#onKeyUpListener = null;
-		this.#onResetListener = null;
+		this.inputElement.focus();
 	}
 }
