@@ -130,7 +130,10 @@ export class Doxsite
 
 		copyFile(templatePath + '/Doxyfile', projectPath + '/doxygen/Doxyfile');
 		copyFile(templatePath + '/documentation.css', projectPath + '/develop/styles/documentation.css');
-		copyFile(templatePath + '/nav.js', projectPath + '/develop/scripts/nav.js');
+		copyFile(templatePath + '/scripts/navpanel.js', projectPath + '/develop/scripts/navpanel.js');
+		copyFile(templatePath + '/scripts/searchform.js', projectPath + '/develop/scripts/searchform.js');
+		copyFile(templatePath + '/scripts/searchprovider.js', projectPath + '/develop/scripts/searchprovider.js');
+		copyFile(templatePath + '/scripts/levenshtein.js', projectPath + '/develop/scripts/levenshtein.js');
 		copyFile(templatePath + '/templates.json', projectPath + '/templates/templates.json');
 
 		let htmlFiles = fs.readdirSync(templatePath + '/api');
