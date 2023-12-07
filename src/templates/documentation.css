@@ -399,7 +399,7 @@ table.values tr:nth-child(odd),
 table.returns tr:nth-child(odd),
 table.type tr
 {
-	background-color: #f6f6f9;
+	background-color: #fbfbfd;
 }
 
 table.members tr:nth-child(even),
@@ -407,7 +407,7 @@ table.parameters tr:nth-child(even),
 table.values tr:nth-child(even),
 table.returns tr:nth-child(even)
 {
-	background-color: #fbfbfd;
+	background-color: #f6f6f9;
 }
 
 table.members td,
