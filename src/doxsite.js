@@ -131,6 +131,8 @@ export class Doxsite
 		copyFile(templatePath + '/Doxyfile', projectPath + '/doxygen/Doxyfile');
 		copyFile(templatePath + '/documentation.css', projectPath + '/develop/styles/documentation.css');
 		copyFile(templatePath + '/scripts/navpanel.js', projectPath + '/develop/scripts/navpanel.js');
+		copyFile(templatePath + '/scripts/search.js', projectPath + '/develop/scripts/search.js');
+		copyFile(templatePath + '/scripts/searchformconfig.js', projectPath + '/develop/scripts/searchformconfig.js');
 		copyFile(templatePath + '/scripts/searchform.js', projectPath + '/develop/scripts/searchform.js');
 		copyFile(templatePath + '/scripts/searchprovider.js', projectPath + '/develop/scripts/searchprovider.js');
 		copyFile(templatePath + '/scripts/levenshtein.js', projectPath + '/develop/scripts/levenshtein.js');

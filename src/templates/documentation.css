@@ -612,3 +612,14 @@ table.type .member-name
 {
 	font-weight: 500;
 }
+
+.search-result
+{
+	margin: 2em 0;
+}
+
+.search-result a:first-child
+{
+	font-size: 1.1em;
+	font-weight: 400;
+}

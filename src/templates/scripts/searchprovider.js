@@ -79,13 +79,7 @@ export default class SearchProvider
 			}
 		}
 
-		results.sort((a, b) => {
-			if (a.index < b.index) return -1;
-			if (a.index > b.index) return 1;
-			if (a.distance < b.distance) return -1;
-			if (a.distance > b.distance) return 1;
-			return a.value.localeCompare(b.value);
-		});
+		results.sort(SearchProvider.#compareResults);
 
 		limit = limit ? Math.min(limit, results.length) : results.length;
 
@@ -97,8 +91,82 @@ export default class SearchProvider
 		return suggestions;
 	}
 
+	search(value)
+	{
+		let data = this.data;
+
+		if (!data)
+		{
+			return [];
+		}
+
+		let regex = new RegExp(value, 'i');
+		let results = [];
+
+		for (let key in data)
+		{
+			let defs = data[key];
+
+			let index = key.search(regex);
+
+			if (index < 0)
+			{
+				for (let i = 0; i < defs.length; i++)
+				{
+					let def = defs[i];
+
+					index = def.name.search(regex);
+
+					if (index < 0)
+					{
+						continue;
+					}
+
+					results.push({
+						value: def.name,
+						description: def.description,
+						url: def.url,
+						index: index,
+						distance: Levenshtein.compare(value, def.name)
+					});
+				}
+			}
+			else
+			{
+				let keyRegex = new RegExp(key, 'i');
+
+				for (let i = 0; i < defs.length; i++)
+				{
+					let def = defs[i];
+					let match = def.name.match(keyRegex)[0];
+
+					results.push({
+						value: def.name,
+						description: def.description,
+						url: def.url,
+						index: index,
+						distance: Levenshtein.compare(value, match)
+					});
+				}
+			}
+		}
+
+		results.sort(SearchProvider.#compareResults);
+
+		return results;
+	}
+
 	dispose()
 	{
 		this.data = null;
+	}
+
+	static #compareResults(a, b)
+	{
+		if (a.index < b.index) return -1;
+		if (a.index > b.index) return 1;
+		if (a.distance < b.distance) return -1;
+		if (a.distance > b.distance) return 1;
+		return a.value.localeCompare(b.value);
 	}
 }

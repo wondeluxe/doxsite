@@ -1,6 +1,5 @@
 'use strict';
 
-import searchdata from './searchdata.js';
 import SearchProvider from './searchprovider.js';
 
 export default class SearchForm
@@ -418,12 +417,3 @@ export default class SearchForm
 		this.#onResetListener = null;
 	}
 }
-
-(function()
-{
-	let searchFormElement = document.getElementById('documentation-search-form');
-	let searchProvider = new SearchProvider(searchdata);
-	let searchSuggestionLimit = 10;
-
-	new SearchForm(searchFormElement, searchProvider, searchSuggestionLimit);
-})();
