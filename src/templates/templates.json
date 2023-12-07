@@ -12,6 +12,7 @@
 			"memberAssembly": "memberassembly.html",
 			"navNamespace": "navnamespace.html",
 			"navMember": "navmember.html",
+			"navMemberSelected": "navmemberselected.html",
 			"typeParameterSection": "typeparametersection.html",
 			"typeParameter": "typeparameter.html",
 			"fieldSection": "fieldsection.html",

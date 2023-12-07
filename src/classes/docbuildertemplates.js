@@ -47,6 +47,10 @@ export default class DocBuilderTemplates
 
 	navMember = null;
 
+	/** @type {String} Markup for the currently selected item (class/struct/enum etc.) that is listed in the nav menu under a namespace. */
+
+	navMemberSelected = null;
+
 	/** @type {String} Markup for the description section of a page. */
 
 	descriptionSection = null;
