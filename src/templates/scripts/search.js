@@ -12,6 +12,8 @@ import SearchForm from './searchform.js';
 
 	new SearchForm(searchFormElement, searchProvider, searchSuggestionLimit);
 
+	let contentElement = document.getElementById('content');
+
 	let params = new URLSearchParams(window.location.search);
 	let searchValue = params.get('q');
 
@@ -31,6 +33,10 @@ import SearchForm from './searchform.js';
 			html += '</div>';
 		}
 
-		document.getElementById('content').innerHTML = html;
+		contentElement.innerHTML = html;
+	}
+	else
+	{
+		contentElement.innerHTML = '';
 	}
 })();
