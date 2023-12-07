@@ -119,15 +119,17 @@ a
 
 #nav-tree
 {
-	box-sizing: border-box;
 	flex: 0 0 25em;
+	padding-left: 1.5em;
 	height: 100%;
+	box-sizing: border-box;
 	overflow-y: scroll;
 }
 
 #nav-tree ul
 {
 	list-style-type: none;
+	padding-inline-start: 1.3em;
 }
 
 #nav-tree li
@@ -590,6 +592,10 @@ table.type .member-name
 .search-suggestion
 {
 	padding: var(--search-suggestion-padding-y) var(--search-suggestion-padding-x);
+	width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .search-suggestion:last-child
