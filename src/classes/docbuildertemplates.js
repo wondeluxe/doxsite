@@ -47,9 +47,13 @@ export default class DocBuilderTemplates
 
 	navMember = null;
 
-	/** @type {String} Markup for the currently selected item (class/struct/enum etc.) that is listed in the nav menu under a namespace. */
+	/** @type {String} Markup for an item (class/struct/enum etc.) that is listed in the nav menu whose page it is. */
 
-	navMemberSelected = null;
+	navMemberThis = null;
+
+	/** @type {String} Markup for an item (class/struct/enum etc.) that is listed in the nav menu whose member's page it is. */
+
+	navMemberMember = null;
 
 	/** @type {String} Markup for the description section of a page. */
 
@@ -360,6 +364,8 @@ export default class DocBuilderTemplates
 			this.memberAssembly = templates.memberAssembly || null;
 			this.navNamespace = templates.navNamespace || null;
 			this.navMember = templates.navMember || null;
+			this.navMemberThis = templates.navMemberThis || null;
+			this.navMemberMember = templates.navMemberMember || null;
 			this.descriptionSection = templates.descriptionSection || null;
 			this.typeParameterSection = templates.typeParameterSection || null;
 			this.typeParameter = templates.typeParameter || null;

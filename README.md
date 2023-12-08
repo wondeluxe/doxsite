@@ -138,6 +138,8 @@ The following table lists all valid template properties that can be provided in 
 | memberAssembly                 | Markup for the listed item's assembly. |
 | navNamespace                   | Markup for a namespace that appears in the nav tree on a page. |
 | navMember                      | Markup for an item (class/struct/enum etc.) that is listed in the nav tree under a namespace. |
+| navMemberThis                  | Markup for an item (class/struct/enum etc.) that is listed in the nav menu whose page it is. |
+| navMemberMember                | Markup for an item (class/struct/enum etc.) that is listed in the nav menu whose member's page it is. |
 | descriptionSection             | Markup for the description section of a page. |
 | typeParameterSection           | Markup for the section of a page that documents an item's type/template parameters. |
 | typeParameter                  | Markup for a documented type/template parameter. |

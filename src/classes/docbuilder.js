@@ -156,31 +156,9 @@ export default class DocBuilder extends EventTarget
 
 		this.#searchData = {};
 
-		let navSectionLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_SECTION, this.templates.page);
-
-		let namespaces = this.namespaces;
-
-		let navNamespaces = [];
-
-		// First iteration build the nav.
-		for (let n = 0; n < namespaces.length; n++)
-		{
-			navNamespaces.push(this.#constructNavNamespace(namespaces[n]).replace(/\n/g, '\n' + navSectionLeadingWhitespace));
-		}
-
-		let navSection = navNamespaces.join('\n' + navSectionLeadingWhitespace);
-
-		// console.log(navSectionLeadingWhitespace + navSection);
-
-		// Second iteration build the pages.
-
-		this.#buildIndexPage(navSection);
-		this.#buildSearchPage(navSection);
-
-		for (let n = 0; n < namespaces.length; n++)
-		{
-			this.#buildNamespacePages(namespaces[n], navSection);
-		}
+		this.#buildIndexPage();
+		this.#buildSearchPage();
+		this.#buildAPIPages();
 
 		let searchData = this.#searchData;
 		let searchDataStrings = [];
@@ -207,46 +185,49 @@ export default class DocBuilder extends EventTarget
 
 	/**
 	 * Build the index page for the documentation site.
-	 * @param {String} navSection - HTML to insert for the nav section of the page.
 	 */
 
-	#buildIndexPage(navSection)
+	#buildIndexPage()
 	{
-		let page = this.templates.index;
+		let content = this.templates.index;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, null));
 
-		fs.writeFileSync(this.#getOutputPath('index.' + this.outputFileExtension), page);
+		fs.writeFileSync(this.#getOutputPath(`index.${this.outputFileExtension}`), content);
 	}
 
 	/**
 	 * Build the search page for the documentation site.
-	 * @param {String} navSection - HTML to insert for the nav section of the page.
 	 */
 
-	#buildSearchPage(navSection)
+	#buildSearchPage()
 	{
-		let page = this.templates.search;
+		let content = this.templates.search;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, null));
 
-		fs.writeFileSync(this.#getOutputPath('search.' + this.outputFileExtension), page);
+		fs.writeFileSync(this.#getOutputPath(`search.${this.outputFileExtension}`), content);
+	}
+
+	#buildAPIPages()
+	{
+		for (let n = 0; n < this.namespaces.length; n++)
+		{
+			this.#buildNamespacePages(this.namespaces[n]);
+		}
 	}
 
 	/**
 	 * Build pages for the members of a namespace.
 	 * @param {APINamespace} namespace - The namespace to build pages for.
-	 * @param {String} navSection - HTML to insert for the nav section of the page.
 	 */
 
-	#buildNamespacePages(namespace, navSection)
+	#buildNamespacePages(namespace)
 	{
 		for (let m = 0; m < namespace.members.length; m++)
 		{
-			// let pageURL = this.#buildMemberPage(namespace.members[m]);
-
 			let member = namespace.members[m];
 
 			switch (member.definitionType)
@@ -254,16 +235,16 @@ export default class DocBuilder extends EventTarget
 				case 'class':
 				case 'struct':
 				case 'interface':
-					this.#buildObjectPage(member, navSection);
+					this.#buildObjectPage(member);
 					break;
 				case 'enum':
-					this.#buildEnumPage(member, navSection);
+					this.#buildEnumPage(member);
 					break;
 				case 'delegate':
-					this.#buildMethodPage(member, navSection);
+					this.#buildMethodPage(member);
 					break;
 				case 'namespace':
-					this.#buildNamespacePages(member, navSection);
+					this.#buildNamespacePages(member);
 					break;
 				default:
 					console.warn('Unhandled namespace member definition type "' + member.definitionType + '".');
@@ -275,10 +256,9 @@ export default class DocBuilder extends EventTarget
 	/**
 	 * Build the documentation pages for a class, struct or interface, and its members.
 	 * @param {APIObject} definition - The definition of the class, struct or interface to build the documentation pages for.
-	 * @param {String} navSection - Markup to insert for the nav section of the page.
 	 */
 
-	#buildObjectPage(definition, navSection)
+	#buildObjectPage(definition)
 	{
 		this.#addSearchData(definition);
 
@@ -347,28 +327,28 @@ export default class DocBuilder extends EventTarget
 					// memberLeadingWhitespace = fieldLeadingWhitespace;
 					memberSections = fieldSections;
 					constructMember = this.#constructField.bind(this);
-					this.#buildFieldPage(member, navSection);
+					this.#buildFieldPage(member);
 					break;
 				case 'property':
 					memberTemplates = templates.properties;
 					// memberLeadingWhitespace = propertyLeadingWhitespace;
 					memberSections = propertySections;
 					constructMember = this.#constructProperty.bind(this);
-					this.#buildPropertyPage(member, navSection);
+					this.#buildPropertyPage(member);
 					break;
 				case 'method':
 					memberTemplates = templates.methods;
 					// memberLeadingWhitespace = methodLeadingWhitespace;
 					memberSections = methodSections;
 					constructMember = this.#constructMethod.bind(this);
-					this.#buildMethodPage(member, navSection);
+					this.#buildMethodPage(member);
 					break;
 				case 'event':
 					memberTemplates = templates.events;
 					// memberLeadingWhitespace = eventLeadingWhitespace;
 					memberSections = eventSections;
 					constructMember = this.#constructEvent.bind(this);
-					this.#buildEventPage(member, navSection);
+					this.#buildEventPage(member);
 					break;
 				default:
 					throw new Error('Unhandled namespace member definition type "' + member.definitionType + '".');
@@ -424,46 +404,46 @@ export default class DocBuilder extends EventTarget
 			}
 		}
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructObjectDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructObjectDeclaration(definition));
 
 		if (definition.inherits.length)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS), this.#constructInherits(definition));
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS), this.#constructInherits(definition));
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
 		}
 
 		if (definition.implements.length)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS), this.#constructImplements(definition));
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS), this.#constructImplements(definition));
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
 		}
 
 		// NOTE Type parameter constraints aren't supplied by Doxygen.
@@ -487,11 +467,11 @@ export default class DocBuilder extends EventTarget
 
 			let templateParamSection = templates.typeParameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join('\n'));
 
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		}
 
 		// The following loop handles all field, property, method and event section properties on the page.
@@ -509,25 +489,25 @@ export default class DocBuilder extends EventTarget
 					let sectionContent = this.#constructMemberSection(section.template, section.access, definitionType.membersVar, section.contents);
 					let sectionLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(section.pageVar, section.template);
 
-					page = page.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
+					content = content.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
 				}
 				else
 				{
-					page = page.replace(DocBuilderVars.regExp(section.pageVar, true), '');
+					content = content.replace(DocBuilderVars.regExp(section.pageVar, true), '');
 				}
 			}
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
 
-	#buildFieldPage(definition, navSection)
+	#buildFieldPage(definition)
 	{
 		this.#addSearchData(definition);
 
@@ -535,153 +515,149 @@ export default class DocBuilder extends EventTarget
 
 		let templates = this.templates;
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructFieldDeclaration(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructFieldDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
 
 		let typeSection = templates.typeSection;
 		typeSection = typeSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE), this.#replaceIDLinks(definition.type));
 
-		// page = page.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION), typeSection);
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION), typeSection);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
-
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
 
-	#buildPropertyPage(definition, navSection)
+	#buildPropertyPage(definition)
 	{
 		this.#addSearchData(definition);
 
 		let templates = this.templates;
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructPropertyDeclaration(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructPropertyDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
 
 		let typeSection = templates.typeSection;
 		typeSection = typeSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE), this.#replaceIDLinks(definition.type));
 
-		// page = page.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION), typeSection);
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION), typeSection);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
-
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
 
-	#buildMethodPage(definition, navSection)
+	#buildMethodPage(definition)
 	{
 		this.#addSearchData(definition);
 
@@ -689,29 +665,29 @@ export default class DocBuilder extends EventTarget
 
 		// TODO Fix leading whitespace.
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructMethodDeclaration(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructMethodDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION, true), '');
 		}
 
 		// NOTE Type parameter constraints aren't supplied by Doxygen.
@@ -735,42 +711,42 @@ export default class DocBuilder extends EventTarget
 
 			let templateParamSection = templates.typeParameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join('\n'));
 
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
 
 		if (definition.params && definition.params.length)
 		{
@@ -800,11 +776,11 @@ export default class DocBuilder extends EventTarget
 
 			let paramSection = templates.parameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETERS), paramsContents.join('\n'));
 
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION), paramSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION), paramSection);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
 		}
 
 		if (definition.type && definition.type.indexOf('void') < 0)
@@ -816,11 +792,11 @@ export default class DocBuilder extends EventTarget
 
 			// TODO Handle indentation.
 
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION), returnSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION), returnSection);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
 		}
 
 		if (definition.overloads && definition.overloads.length)
@@ -839,19 +815,19 @@ export default class DocBuilder extends EventTarget
 
 			let overloadSection = templates.overloadSection.replace(DocBuilderVars.regExp(DocBuilderVars.METHODS), overloadsContents.join('\n'));
 
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION), overloadSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION), overloadSection);
 		}
 		else
 		{
-			page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 		}
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
 
-	#buildEventPage(definition, navSection)
+	#buildEventPage(definition)
 	{
 		this.#addSearchData(definition);
 
@@ -859,115 +835,115 @@ export default class DocBuilder extends EventTarget
 
 		// TODO Fix leading whitespace.
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEventDeclaration(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEventDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
 
-	#buildEnumPage(definition, navSection)
+	#buildEnumPage(definition)
 	{
 		this.#addSearchData(definition);
 
 		let templates = this.templates;
 
-		let page = templates.page;
+		let content = templates.page;
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), navSection);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEnumDeclaration(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEnumDeclaration(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_INHERITS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_IMPLEMENTS, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.INSTANCE_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 
 		// TODO Fix leading whitespace.
 
@@ -989,10 +965,24 @@ export default class DocBuilder extends EventTarget
 
 		// page = page.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
 
-		page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valueSection);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valueSection);
 		// page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
 
-		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), page);
+		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
+	}
+
+	#constructNav(pageTemplate, selectedMember)
+	{
+		let leadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_SECTION, pageTemplate);
+
+		let namespaceContents = [];
+
+		for (let n = 0; n < this.namespaces.length; n++)
+		{
+			namespaceContents.push(this.#constructNavNamespace(this.namespaces[n], selectedMember, leadingWhitespace));
+		}
+
+		return namespaceContents.join(`\n${leadingWhitespace}`);
 	}
 
 	/**
@@ -1001,14 +991,14 @@ export default class DocBuilder extends EventTarget
 	 * @returns String A HTML string.
 	 */
 
-	#constructNavNamespace(namespace)
+	#constructNavNamespace(namespace, selectedMember, leadingWhitespace)
 	{
-		let navNamespace = this.templates.navNamespace;
-		navNamespace = navNamespace.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_NAMESPACE), namespace.name);
+		fs.mkdirSync(this.#getAPINamespaceOutputPath(namespace.qualifiedName), { recursive: true });
 
-		let navMemberLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_MEMBERS, navNamespace);
+		let content = this.templates.navNamespace.replace(/\n/g, `\n${leadingWhitespace}`);
+		let membersContents = [];
 
-		let navMembers = [];
+		leadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_MEMBERS, content);
 
 		for (let m = 0; m < namespace.members.length; m++)
 		{
@@ -1021,14 +1011,10 @@ export default class DocBuilder extends EventTarget
 				case 'interface':
 				case 'enum':
 				case 'delegate':
-					let navMember = this.templates.navMember;
-					navMember = navMember.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_NAME), member.name);
-					navMember = navMember.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_URL), this.#getAPIFileURL(member));
-					navMember = navMember.replace(/\n/g, '\n' + navMemberLeadingWhitespace);
-					navMembers.push(navMember);
+					membersContents.push(this.#constructNavMember(member, selectedMember, leadingWhitespace));
 					break;
 				case 'namespace':
-					navMembers.push(this.#constructNavNamespace(member).replace(/\n/g, '\n' + navMemberLeadingWhitespace));
+					membersContents.push(this.#constructNavNamespace(member, selectedMember, leadingWhitespace));
 					break;
 				default:
 					console.warn('Unhandled namespace member definition type "' + member.definitionType + '".');
@@ -1036,9 +1022,23 @@ export default class DocBuilder extends EventTarget
 			}
 		}
 
-		fs.mkdirSync(this.#getAPINamespaceOutputPath(namespace.qualifiedName), { recursive: true });
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_NAMESPACE), namespace.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBERS), membersContents.join(`\n${leadingWhitespace}`));
 
-		return navNamespace.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBERS), navMembers.join('\n' + navMemberLeadingWhitespace));
+		return content;
+	}
+
+	#constructNavMember(member, selectedMember, leadingWhitespace)
+	{
+		let templates = this.templates;
+
+		let content = selectedMember ? (selectedMember.id == member.id ? templates.navMemberThis : ((selectedMember.owner && selectedMember.owner.id == member.id) ? templates.navMemberMember : templates.navMember)) : templates.navMember;
+
+		content = content.replace(/\n/g, `\n${leadingWhitespace}`);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_NAME), member.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBER_URL), this.#getAPIFileURL(member));
+
+		return content;
 	}
 
 	#constructMemberSection(template, access, membersVar, members)
