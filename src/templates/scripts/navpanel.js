@@ -185,5 +185,12 @@ export default class NavPanel
 	let navPanelMinWidth = navPanelElement.offsetWidth;
 	let navPanelMaxWidth = contentElement.offsetWidth;
 
+	let currentItemElement = navPanelElement.querySelector('.this, .member');
+
+	if (currentItemElement)
+	{
+		currentItemElement.scrollIntoView({block: 'center'});
+	}
+
 	new NavPanel(navPanelElement, navPanelHandleElement, navPanelFoldoutElements, navPanelWidthProperty, navPanelMinWidth, navPanelMaxWidth);
 })();
