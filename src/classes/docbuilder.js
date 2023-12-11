@@ -265,142 +265,115 @@ export default class DocBuilder extends EventTarget
 		let templates = this.templates;
 
 		let fieldSections = {
-			all: { pageVar: DocBuilderVars.FIELD_SECTION, template: templates.fieldSection, access: '', contents: [] },
-			instance: { pageVar: DocBuilderVars.INSTANCE_FIELD_SECTION, template: templates.instanceFieldSection, access: '', contents: [] },
-			public: { pageVar: DocBuilderVars.PUBLIC_FIELD_SECTION, template: templates.publicFieldSection, access: 'public', contents: [] },
-			protected: { pageVar: DocBuilderVars.PROTECTED_FIELD_SECTION, template: templates.protectedFieldSection, access: 'protected', contents: [] },
-			static: { pageVar: DocBuilderVars.STATIC_FIELD_SECTION, template: templates.staticFieldSection, access: '', contents: [] },
-			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, template: templates.publicStaticFieldSection, access: 'public', contents: [] },
-			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, template: templates.protectedStaticFieldSection, access: 'protected', contents: [] }
+			all: { pageVar: DocBuilderVars.FIELD_SECTION, template: templates.fieldSection, access: '', memberTemplate: templates.field, members: [] },
+			instance: { pageVar: DocBuilderVars.INSTANCE_FIELD_SECTION, template: templates.instanceFieldSection, access: '', memberTemplate: templates.instanceField, members: [] },
+			public: { pageVar: DocBuilderVars.PUBLIC_FIELD_SECTION, template: templates.publicFieldSection, access: 'public', memberTemplate: templates.publicField, members: [] },
+			protected: { pageVar: DocBuilderVars.PROTECTED_FIELD_SECTION, template: templates.protectedFieldSection, access: 'protected', memberTemplate: templates.protectedField, members: [] },
+			static: { pageVar: DocBuilderVars.STATIC_FIELD_SECTION, template: templates.staticFieldSection, access: '', memberTemplate: templates.staticField, members: [] },
+			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_FIELD_SECTION, template: templates.publicStaticFieldSection, access: 'public', memberTemplate: templates.publicStaticField, members: [] },
+			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_FIELD_SECTION, template: templates.protectedStaticFieldSection, access: 'protected', memberTemplate: templates.protectedStaticField, members: [] }
 		};
 
 		let propertySections = {
-			all: { pageVar: DocBuilderVars.PROPERTY_SECTION, template: templates.propertySection, access: '', contents: [] },
-			instance: { pageVar: DocBuilderVars.INSTANCE_PROPERTY_SECTION, template: templates.instancePropertySection, access: '', contents: [] },
-			public: { pageVar: DocBuilderVars.PUBLIC_PROPERTY_SECTION, template: templates.publicPropertySection, access: 'public', contents: [] },
-			protected: { pageVar: DocBuilderVars.PROTECTED_PROPERTY_SECTION, template: templates.protectedPropertySection, access: 'protected', contents: [] },
-			static: { pageVar: DocBuilderVars.STATIC_PROPERTY_SECTION, template: templates.staticPropertySection, access: '', contents: [] },
-			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, template: templates.publicStaticPropertySection, access: 'public', contents: [] },
-			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, template: templates.protectedStaticPropertySection, access: 'protected', contents: [] }
+			all: { pageVar: DocBuilderVars.PROPERTY_SECTION, template: templates.propertySection, access: '', memberTemplate: templates.property, members: [] },
+			instance: { pageVar: DocBuilderVars.INSTANCE_PROPERTY_SECTION, template: templates.instancePropertySection, access: '', memberTemplate: templates.instanceProperty, members: [] },
+			public: { pageVar: DocBuilderVars.PUBLIC_PROPERTY_SECTION, template: templates.publicPropertySection, access: 'public', memberTemplate: templates.publicProperty, members: [] },
+			protected: { pageVar: DocBuilderVars.PROTECTED_PROPERTY_SECTION, template: templates.protectedPropertySection, access: 'protected', memberTemplate: templates.protectedProperty, members: [] },
+			static: { pageVar: DocBuilderVars.STATIC_PROPERTY_SECTION, template: templates.staticPropertySection, access: '', memberTemplate: templates.staticProperty, members: [] },
+			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_PROPERTY_SECTION, template: templates.publicStaticPropertySection, access: 'public', memberTemplate: templates.publicStaticProperty, members: [] },
+			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_PROPERTY_SECTION, template: templates.protectedStaticPropertySection, access: 'protected', memberTemplate: templates.protectedStaticProperty, members: [] }
 		};
 
 		let methodSections = {
-			all: { pageVar: DocBuilderVars.METHOD_SECTION, template: templates.methodSection, access: '', contents: [] },
-			instance: { pageVar: DocBuilderVars.INSTANCE_METHOD_SECTION, template: templates.instanceMethodSection, access: '', contents: [] },
-			public: { pageVar: DocBuilderVars.PUBLIC_METHOD_SECTION, template: templates.publicMethodSection, access: 'public', contents: [] },
-			protected: { pageVar: DocBuilderVars.PROTECTED_METHOD_SECTION, template: templates.protectedMethodSection, access: 'protected', contents: [] },
-			static: { pageVar: DocBuilderVars.STATIC_METHOD_SECTION, template: templates.staticMethodSection, access: '', contents: [] },
-			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, template: templates.publicStaticMethodSection, access: 'public', contents: [] },
-			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, template: templates.protectedStaticMethodSection, access: 'protected', contents: [] }
+			all: { pageVar: DocBuilderVars.METHOD_SECTION, template: templates.methodSection, access: '', memberTemplate: templates.method, members: [] },
+			instance: { pageVar: DocBuilderVars.INSTANCE_METHOD_SECTION, template: templates.instanceMethodSection, access: '', memberTemplate: templates.instanceMethod, members: [] },
+			public: { pageVar: DocBuilderVars.PUBLIC_METHOD_SECTION, template: templates.publicMethodSection, access: 'public', memberTemplate: templates.publicMethod, members: [] },
+			protected: { pageVar: DocBuilderVars.PROTECTED_METHOD_SECTION, template: templates.protectedMethodSection, access: 'protected', memberTemplate: templates.protectedMethod, members: [] },
+			static: { pageVar: DocBuilderVars.STATIC_METHOD_SECTION, template: templates.staticMethodSection, access: '', memberTemplate: templates.staticMethod, members: [] },
+			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_METHOD_SECTION, template: templates.publicStaticMethodSection, access: 'public', memberTemplate: templates.publicStaticMethod, members: [] },
+			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_METHOD_SECTION, template: templates.protectedStaticMethodSection, access: 'protected', memberTemplate: templates.protectedStaticMethod, members: [] }
 		};
 
 		let eventSections = {
-			all: { pageVar: DocBuilderVars.EVENT_SECTION, template: templates.eventSection, access: '', contents: [] },
-			instance: { pageVar: DocBuilderVars.INSTANCE_EVENT_SECTION, template: templates.instanceEventSection, access: '', contents: [] },
-			public: { pageVar: DocBuilderVars.PUBLIC_EVENT_SECTION, template: templates.publicEventSection, access: 'public', contents: [] },
-			protected: { pageVar: DocBuilderVars.PROTECTED_EVENT_SECTION, template: templates.protectedEventSection, access: 'protected', contents: [] },
-			static: { pageVar: DocBuilderVars.STATIC_EVENT_SECTION, template: templates.staticEventSection, access: '', contents: [] },
-			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, template: templates.publicStaticEventSection, access: 'public', contents: [] },
-			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, template: templates.protectedStaticEventSection, access: 'protected', contents: [] }
+			all: { pageVar: DocBuilderVars.EVENT_SECTION, template: templates.eventSection, access: '', memberTemplate: templates.event, members: [] },
+			instance: { pageVar: DocBuilderVars.INSTANCE_EVENT_SECTION, template: templates.instanceEventSection, access: '', memberTemplate: templates.instanceEvent, members: [] },
+			public: { pageVar: DocBuilderVars.PUBLIC_EVENT_SECTION, template: templates.publicEventSection, access: 'public', memberTemplate: templates.publicEvent, members: [] },
+			protected: { pageVar: DocBuilderVars.PROTECTED_EVENT_SECTION, template: templates.protectedEventSection, access: 'protected', memberTemplate: templates.protectedEvent, members: [] },
+			static: { pageVar: DocBuilderVars.STATIC_EVENT_SECTION, template: templates.staticEventSection, access: '', memberTemplate: templates.staticEvent, members: [] },
+			publicStatic: { pageVar: DocBuilderVars.PUBLIC_STATIC_EVENT_SECTION, template: templates.publicStaticEventSection, access: 'public', memberTemplate: templates.publicStaticEvent, members: [] },
+			protectedStatic: { pageVar: DocBuilderVars.PROTECTED_STATIC_EVENT_SECTION, template: templates.protectedStaticEventSection, access: 'protected', memberTemplate: templates.protectedStaticEvent, members: [] }
 		};
 
 		let memberDefinitionTypes = [
-			{ sections: fieldSections, membersVar: DocBuilderVars.FIELDS },
-			{ sections: propertySections, membersVar: DocBuilderVars.PROPERTIES },
-			{ sections: methodSections, membersVar: DocBuilderVars.METHODS },
-			{ sections: eventSections, membersVar: DocBuilderVars.EVENTS }
+			{ sections: fieldSections, membersVar: DocBuilderVars.FIELDS, constructMember: this.#constructField.bind(this) },
+			{ sections: propertySections, membersVar: DocBuilderVars.PROPERTIES, constructMember: this.#constructProperty.bind(this) },
+			{ sections: methodSections, membersVar: DocBuilderVars.METHODS, constructMember: this.#constructMethod.bind(this) },
+			{ sections: eventSections, membersVar: DocBuilderVars.EVENTS, constructMember: this.#constructEvent.bind(this) }
 		];
 
 		for (let m = 0; m < definition.members.length; m++)
 		{
 			let member = definition.members[m];
 
-			let memberTemplates = null;
-			// let memberLeadingWhitespace = null;
 			let memberSections = null;
-			let constructMember = null;
 
 			switch (member.definitionType)
 			{
 				case 'field':
-					memberTemplates = templates.fields;
-					// memberLeadingWhitespace = fieldLeadingWhitespace;
 					memberSections = fieldSections;
-					constructMember = this.#constructField.bind(this);
 					this.#buildFieldPage(member);
 					break;
 				case 'property':
-					memberTemplates = templates.properties;
-					// memberLeadingWhitespace = propertyLeadingWhitespace;
 					memberSections = propertySections;
-					constructMember = this.#constructProperty.bind(this);
 					this.#buildPropertyPage(member);
 					break;
 				case 'method':
-					memberTemplates = templates.methods;
-					// memberLeadingWhitespace = methodLeadingWhitespace;
 					memberSections = methodSections;
-					constructMember = this.#constructMethod.bind(this);
 					this.#buildMethodPage(member);
 					break;
 				case 'event':
-					memberTemplates = templates.events;
-					// memberLeadingWhitespace = eventLeadingWhitespace;
 					memberSections = eventSections;
-					constructMember = this.#constructEvent.bind(this);
 					this.#buildEventPage(member);
 					break;
 				default:
 					throw new Error('Unhandled namespace member definition type "' + member.definitionType + '".');
 			}
 
-			let template = null;
-			// let leadingWhitespace = null;
-			let contents = [memberSections.all.contents];
+			memberSections.all.members.push(member);
 
-			contents.push(member.static ? memberSections.static.contents : memberSections.instance.contents);
-
-			if (member.access == 'public')
+			if (member.static)
 			{
-				if (member.static)
+				memberSections.static.members.push(member);
+
+				if (member.access == 'public')
 				{
-					template = memberTemplates.publicStatic;
-					// leadingWhitespace = memberLeadingWhitespace.publicStatic;
-					contents.push(memberSections.publicStatic.contents);
+					memberSections.publicStatic.members.push(member);
+				}
+				else if (member.access == 'protected')
+				{
+					memberSections.protectedStatic.members.push(member);
 				}
 				else
 				{
-					template = memberTemplates.public;
-					// leadingWhitespace = memberLeadingWhitespace.public;
-					contents.push(memberSections.public.contents);
-				}
-			}
-			else if (member.access == 'protected')
-			{
-				if (member.static)
-				{
-					template = memberTemplates.protectedStatic;
-					// leadingWhitespace = memberLeadingWhitespace.protectedStatic;
-					contents.push(memberSections.protectedStatic.contents);
-				}
-				else
-				{
-					template = memberTemplates.protected;
-					// leadingWhitespace = memberLeadingWhitespace.protected;
-					contents.push(memberSections.protected.contents);
+					throw new Error('Unhandled member protection level "' + member.access + '".');
 				}
 			}
 			else
 			{
-				throw new Error('Unhandled member protection level "' + member.access + '".');
-			}
+				memberSections.instance.members.push(member);
 
-			let content = constructMember(template, member);
-
-			for (let c = 0; c < contents.length; c++)
-			{
-				// contents[c].push(content.replace(/\n/g, '\n' + leadingWhitespace));
-				contents[c].push(content);
+				if (member.access == 'public')
+				{
+					memberSections.public.members.push(member);
+				}
+				else if (member.access == 'protected')
+				{
+					memberSections.protected.members.push(member);
+				}
+				else
+				{
+					throw new Error('Unhandled member protection level "' + member.access + '".');
+				}
 			}
 		}
 
@@ -450,12 +423,17 @@ export default class DocBuilder extends EventTarget
 
 		if (definition.types && definition.types.length)
 		{
+			let typeParamsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.TYPE_PARAMETER_SECTION, content);
+
+			let typeParamsSection = templates.typeParameterSection.replace(/\n/g, `\n${typeParamsLeadingWhitespace}`);
 			let typeParamsContents = [];
+
+			typeParamsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.TYPE_PARAMETERS, typeParamsSection);
 
 			for (let i = 0; i < definition.types.length; i++)
 			{
 				let typeParam = definition.types[i];
-				let typeParamContent = templates.typeParameter;
+				let typeParamContent = templates.typeParameter.replace(/\n/g, `\n${typeParamsLeadingWhitespace}`);
 
 				typeParamContent = typeParamContent.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_NAME), '<span class="member-name">' + typeParam.identifier + '</span>');
 				typeParamContent = typeParamContent.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_DESCRIPTION), typeParam.description);
@@ -463,11 +441,9 @@ export default class DocBuilder extends EventTarget
 				typeParamsContents.push(typeParamContent);
 			}
 
-			// TODO Handle indentation.
+			typeParamsSection = typeParamsSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join(`\n${typeParamsLeadingWhitespace}`) );
 
-			let templateParamSection = templates.typeParameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join('\n'));
-
-			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), typeParamsSection);
 		}
 		else
 		{
@@ -478,23 +454,34 @@ export default class DocBuilder extends EventTarget
 
 		for (let t = 0; t < memberDefinitionTypes.length; t++)
 		{
+			// field, property, method or event.
+			// { sections: {String, Section}, membersVar: String, constructMember: Function }
 			let definitionType = memberDefinitionTypes[t];
 
 			for (let sectionName in definitionType.sections)
 			{
+				// all, instance, public, protected, static, publicStatic or protectedStatic.
+				// { pageVar: String, template: String, access: String, memberTemplate: String, members: APIDefinition[] }
 				let section = definitionType.sections[sectionName];
 
-				if (section.contents.length)
-				{
-					let sectionContent = this.#constructMemberSection(section.template, section.access, definitionType.membersVar, section.contents);
-					let sectionLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(section.pageVar, section.template);
-
-					content = content.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
-				}
-				else
+				if (section.members.length < 1)
 				{
 					content = content.replace(DocBuilderVars.regExp(section.pageVar, true), '');
+					continue;
 				}
+
+				let sectionRegExp = DocBuilderVars.regExp(section.pageVar);
+
+				if (!content.match(sectionRegExp))
+				{
+					continue;
+				}
+
+				let sectionLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(section.pageVar, content);
+
+				let sectionContent = this.#constructMemberSection(section.template, sectionLeadingWhitespace, section.access, definitionType.membersVar, section.members, definitionType.constructMember, section.memberTemplate);
+
+				content = content.replace(sectionRegExp, sectionContent);
 			}
 		}
 
@@ -663,8 +650,6 @@ export default class DocBuilder extends EventTarget
 
 		let templates = this.templates;
 
-		// TODO Fix leading whitespace.
-
 		let content = templates.page;
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
@@ -694,12 +679,17 @@ export default class DocBuilder extends EventTarget
 
 		if (definition.types && definition.types.length)
 		{
+			let typeParamsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.TYPE_PARAMETER_SECTION, content);
+
+			let typeParamsSection = templates.typeParameterSection.replace(/\n/g, `\n${typeParamsLeadingWhitespace}`);
 			let typeParamsContents = [];
+
+			typeParamsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.TYPE_PARAMETERS, typeParamsSection);
 
 			for (let i = 0; i < definition.types.length; i++)
 			{
 				let typeParam = definition.types[i];
-				let typeParamContent = templates.typeParameter;
+				let typeParamContent = templates.typeParameter.replace(/\n/g, `\n${typeParamsLeadingWhitespace}`);
 
 				typeParamContent = typeParamContent.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_NAME), '<span class="member-name">' + typeParam.identifier + '</span>');
 				typeParamContent = typeParamContent.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_DESCRIPTION), typeParam.description);
@@ -707,11 +697,9 @@ export default class DocBuilder extends EventTarget
 				typeParamsContents.push(typeParamContent);
 			}
 
-			// TODO Handle indentation.
+			typeParamsSection = typeParamsSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join(`\n${typeParamsLeadingWhitespace}`) );
 
-			let templateParamSection = templates.typeParameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETERS), typeParamsContents.join('\n'));
-
-			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), templateParamSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION), typeParamsSection);
 		}
 		else
 		{
@@ -750,12 +738,17 @@ export default class DocBuilder extends EventTarget
 
 		if (definition.params && definition.params.length)
 		{
+			let paramsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.PARAMETER_SECTION, content);
+
+			let paramsSection = templates.parameterSection.replace(/\n/g, `\n${paramsLeadingWhitespace}`);
 			let paramsContents = [];
+
+			paramsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.PARAMETERS, paramsSection);
 
 			for (let i = 0; i < definition.params.length; i++)
 			{
 				let param = definition.params[i];
-				let paramContent = templates.parameter;
+				let paramContent = templates.parameter.replace(/\n/g, `\n${paramsLeadingWhitespace}`);
 
 				paramContent = paramContent.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_TYPE), param.type);
 				paramContent = paramContent.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_NAME), '<span class="member-name">' + param.name + '</span>');
@@ -772,11 +765,9 @@ export default class DocBuilder extends EventTarget
 				paramsContents.push(paramContent);
 			}
 
-			// TODO Handle indentation.
+			paramsSection = paramsSection.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETERS), paramsContents.join(`\n${paramsLeadingWhitespace}`) );
 
-			let paramSection = templates.parameterSection.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETERS), paramsContents.join('\n'));
-
-			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION), paramSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.PARAMETER_SECTION), paramsSection);
 		}
 		else
 		{
@@ -785,12 +776,12 @@ export default class DocBuilder extends EventTarget
 
 		if (definition.type && definition.type.indexOf('void') < 0)
 		{
-			let returnSection = templates.returnSection;
+			let returnLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.RETURN_SECTION, content);
+
+			let returnSection = templates.returnSection.replace(/\n/g, `\n${returnLeadingWhitespace}`);
 
 			returnSection = returnSection.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_TYPE), this.#replaceIDLinks(definition.type));
 			returnSection = returnSection.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_DESCRIPTION), definition.returnsDescription);
-
-			// TODO Handle indentation.
 
 			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION), returnSection);
 		}
@@ -801,21 +792,24 @@ export default class DocBuilder extends EventTarget
 
 		if (definition.overloads && definition.overloads.length)
 		{
+			let overloadsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.OVERLOAD_SECTION, content);
+
+			let overloadsSection = templates.overloadSection.replace(/\n/g, `\n${overloadsLeadingWhitespace}`);
 			let overloadsContents = [];
+
+			overloadsLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.METHODS, overloadsSection);
 
 			for (let i = 0; i < definition.overloads.length; i++)
 			{
 				let method = this.definitions[definition.overloads[i].id];
-				let methodContent = this.#constructMethod(templates.method, method);
+				let methodContent = this.#constructMethod(templates.method, method, overloadsLeadingWhitespace);
 
 				overloadsContents.push(methodContent);
 			}
 
-			// TODO Handle indentation.
+			overloadsSection = overloadsSection.replace(DocBuilderVars.regExp(DocBuilderVars.METHODS), overloadsContents.join(`\n${overloadsLeadingWhitespace}`));
 
-			let overloadSection = templates.overloadSection.replace(DocBuilderVars.regExp(DocBuilderVars.METHODS), overloadsContents.join('\n'));
-
-			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION), overloadSection);
+			content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION), overloadsSection);
 		}
 		else
 		{
@@ -945,28 +939,27 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.RETURN_SECTION, true), '');
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.OVERLOAD_SECTION, true), '');
 
-		// TODO Fix leading whitespace.
+		let valuesLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.VALUE_SECTION, content);
 
-		let valuesContent = [];
+		let valuesSection = templates.valueSection.replace(/\n/g, `\n${valuesLeadingWhitespace}`);
+		let valuesContents = [];
+
+		valuesLeadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.VALUES, valuesSection);
 
 		for (let i = 0; i < definition.values.length; i++)
 		{
 			let value = definition.values[i];
-			let valueContent = templates.value;
+			let valueContent = templates.value.replace(/\n/g, `\n${valuesLeadingWhitespace}`);
 
 			valueContent = valueContent.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_NAME), '<span class="member-name">' + value.name + '</span>');
 			valueContent = valueContent.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_DESCRIPTION), value.description);
 
-			valuesContent.push(valueContent);
+			valuesContents.push(valueContent);
 		}
 
-		let valueSection = templates.valueSection;
-		valueSection = valueSection.replace(DocBuilderVars.regExp(DocBuilderVars.VALUES), valuesContent.join('\n'));
+		valuesSection = valuesSection.replace(DocBuilderVars.regExp(DocBuilderVars.VALUES), valuesContents.join(`\n${valuesLeadingWhitespace}`));
 
-		// page = page.replace(DocBuilderVars.regExp(section.pageVar), sectionContent.replace(/\n/g, '\n' + sectionLeadingWhitespace));
-
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valueSection);
-		// page = page.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION, true), '');
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.VALUE_SECTION), valuesSection);
 
 		fs.writeFileSync(this.#getAPIFileOutputPathName(definition), content);
 	}
@@ -1041,7 +1034,19 @@ export default class DocBuilder extends EventTarget
 		return content;
 	}
 
-	#constructMemberSection(template, access, membersVar, members)
+	/**
+	 * Construct the section of an API page that provides information about members.
+	 * @param {String} template - The template markup of the section.
+	 * @param {String} leadingWhitespace - The leading whitespace of the markup of the section.
+	 * @param {String} access - Access modifier for the section.
+	 * @param {String} membersVar - The variable in the template markup where members should be inserted.
+	 * @param {APIDefinition[]} members - The members belonging to the section.
+	 * @param {Function} constructMember - Function that constructs the markup for each member.
+	 * @param {String} memberTemplate - The template markup for each member.
+	 * @returns 
+	 */
+
+	#constructMemberSection(template, leadingWhitespace, access, membersVar, members, constructMember, memberTemplate)
 	{
 		// console.log('constructMemberSection', {
 		// 	access: access,
@@ -1049,25 +1054,60 @@ export default class DocBuilder extends EventTarget
 		// 	members: members
 		// });
 
-		let leadingWhitespace = DocBuilderTemplates.leadingWhitespace(membersVar, template);
+		// let content = this.templates.navNamespace.replace(/\n/g, `\n${leadingWhitespace}`);
+		// let membersContents = [];
+
+		// leadingWhitespace = DocBuilderTemplates.leadingWhitespace(DocBuilderVars.NAV_MEMBERS, content);
+
+		// for (let m = 0; m < namespace.members.length; m++)
+		// {
+		// 	let member = namespace.members[m];
+
+		// 	switch (member.definitionType)
+		// 	{
+		// 		case 'class':
+		// 		case 'struct':
+		// 		case 'interface':
+		// 		case 'enum':
+		// 		case 'delegate':
+		// 			membersContents.push(this.#constructNavMember(member, selectedMember, leadingWhitespace));
+		// 			break;
+		// 		case 'namespace':
+		// 			membersContents.push(this.#constructNavNamespace(member, selectedMember, leadingWhitespace));
+		// 			break;
+		// 		default:
+		// 			console.warn('Unhandled namespace member definition type "' + member.definitionType + '".');
+		// 			break;
+		// 	}
+		// }
+
+		// content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_NAMESPACE), namespace.name);
+		// content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_MEMBERS), membersContents.join(`\n${leadingWhitespace}`));
+
+		let content = template.replace(/\n/g, `\n${leadingWhitespace}`);
+		let membersContents = [];
+
+		// let leadingWhitespace = DocBuilderTemplates.leadingWhitespace(membersVar, template);
+		leadingWhitespace = DocBuilderTemplates.leadingWhitespace(membersVar, content);
 
 		for (let i = 0; i < members.length; i++)
 		{
-			members[i] = members[i].replace(/\n/g, '\n' + leadingWhitespace);
-		}
+			// members[i] = members[i].replace(/\n/g, '\n' + leadingWhitespace);
 
-		let content = template;
+			membersContents.push(constructMember(memberTemplate, members[i], leadingWhitespace));
+		}
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TEXT), access);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TITLE_TEXT), this.#constructTitleText(access));
-		content = content.replace(DocBuilderVars.regExp(membersVar), members.join('\n' + leadingWhitespace));
+		// content = content.replace(DocBuilderVars.regExp(membersVar), members.join('\n' + leadingWhitespace));
+		content = content.replace(DocBuilderVars.regExp(membersVar), membersContents.join(`\n${leadingWhitespace}`));
 
 		return content;
 	}
 
-	#constructField(template, definition)
+	#constructField(template, definition, leadingWhitespace)
 	{
-		let content = template;
+		let content = template.replace(/\n/g, `\n${leadingWhitespace}`);
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TEXT), definition.access);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TITLE_TEXT), this.#constructTitleText(definition.access));
@@ -1078,9 +1118,9 @@ export default class DocBuilder extends EventTarget
 		return content;
 	}
 
-	#constructProperty(template, definition)
+	#constructProperty(template, definition, leadingWhitespace)
 	{
-		let content = template;
+		let content = template.replace(/\n/g, `\n${leadingWhitespace}`);
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TEXT), definition.getAccess);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TITLE_TEXT), this.#constructTitleText(definition.getAccess));
@@ -1092,9 +1132,9 @@ export default class DocBuilder extends EventTarget
 		return content;
 	}
 
-	#constructMethod(template, definition)
+	#constructMethod(template, definition, leadingWhitespace)
 	{
-		let content = template;
+		let content = template.replace(/\n/g, `\n${leadingWhitespace}`);
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TEXT), definition.access);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TITLE_TEXT), this.#constructTitleText(definition.access));
@@ -1106,9 +1146,9 @@ export default class DocBuilder extends EventTarget
 		return content;
 	}
 
-	#constructEvent(template, definition)
+	#constructEvent(template, definition, leadingWhitespace)
 	{
-		let content = template;
+		let content = template.replace(/\n/g, `\n${leadingWhitespace}`);
 
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TEXT), definition.access);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ACCESS_TITLE_TEXT), this.#constructTitleText(definition.access));

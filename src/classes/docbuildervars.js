@@ -95,9 +95,9 @@ export default class DocBuilderVars
 	{
 		if (includeLeadingWhitespace)
 		{
-			return new RegExp('\s*\\' + varName + '(?![a-z])', 'g');
+			return new RegExp(`\\s*\\${varName}(?![a-z])`, 'g');
 		}
 
-		return new RegExp('\\' + varName + '(?![a-z])', 'g');
+		return new RegExp(`\\${varName}(?![a-z])`, 'g');
 	}
 }
