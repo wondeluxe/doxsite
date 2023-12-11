@@ -220,6 +220,8 @@ The following variables are used in the HTML templates and replaced when constru
 | $navmembername                  | Used in the **navMember** template where the name of a member of a namespace should be inserted. |
 | $navmemberurl                   | Used in the **navMember** template where the link to the page for a member of a namespace should be inserted. |
 | $membername                     | Used in the **page** template where the name of the item being documented should be inserted. |
+| $memberfullname                 | Used in the **page** template where the full name of the item (in the format "OwningType.ItemName") being documented should be inserted. |
+| $memberqualifiedname            | Used in the **page** template where the qualified name of the (in the format "Namespace.OwningType.ItemName") item being documented should be inserted. |
 | $membernametext                 | Used in the **page** template where the name of the item being documented should be inserted (in plain text). |
 | $membertypetext                 | Used in the **page** template where the definition type (class, struct, method, property etc.) of the item being documented should be inserted (in lowercase). |
 | $membertypetitletext            | Used in the **page** template where the definition type (class, struct, method, property etc.) of the item being documented should be inserted in Title Case. |
@@ -228,8 +230,7 @@ The following variables are used in the HTML templates and replaced when constru
 | $memberimplements               | Used in the **page** template where interfaces a documented item implements should be inserted. |
 | $membernamespace                | Used in the **page** template where a documented item's containing namespace should be inserted. |
 | $memberassembly                 | Used in the **page** template where a documented item's containing assembly should be inserted. Limited as Doxygen doesn't export assembly data. The namespace is assumed as assembly. |
-| $memberowner                    | Used in the **page** template where a documented item's owning type should be inserted with a trailing "." separator. |
-| $memberownername                | Used in the **page** template where a documented item's owning type's name should be inserted. |
+| $memberowner                    | Used in the **page** template where a documented item's owning type's name should be inserted. |
 | $descriptionsection             | Used in the **page** template where a documented item's description should be inserted. |
 | $typeparametersection           | Used in the **page** template where a documented item's type/template parameters should be inserted. |
 | $typeparameters                 | Used in the **typeParameterSection** template where the individual type/template parameters should be inserted. |

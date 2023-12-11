@@ -409,7 +409,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructObjectDeclaration(definition));
@@ -435,7 +436,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -520,7 +520,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructFieldDeclaration(definition));
@@ -529,7 +530,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -594,7 +594,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructPropertyDeclaration(definition));
@@ -603,7 +604,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -670,7 +670,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructMethodDeclaration(definition));
@@ -679,7 +680,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 
 		if (definition.description)
 		{
@@ -840,7 +840,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEventDeclaration(definition));
@@ -849,7 +850,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
@@ -900,7 +900,8 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.ROOT_PATH), this.urlRootPath);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.NAV_SECTION), this.#constructNav(content, definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME), definition.name);
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAME_TEXT), definition.name);
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_FULL_NAME), this.#constructFullName(definition));
+		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_QUALIFIED_NAME), this.#constructQualifiedName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TEXT), definition.definitionType);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_TYPE_TITLE_TEXT), this.#constructTitleText(definition.definitionType));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_DECLARATION), this.#constructEnumDeclaration(definition));
@@ -909,7 +910,6 @@ export default class DocBuilder extends EventTarget
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_NAMESPACE), this.#constructNamespace(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_ASSEMBLY), this.#constructAssembly(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER), this.#constructOwner(definition));
-		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.MEMBER_OWNER_NAME), this.#constructOwnerName(definition));
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.DESCRIPTION_SECTION), definition.description);
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.TYPE_PARAMETER_SECTION, true), '');
 		content = content.replace(DocBuilderVars.regExp(DocBuilderVars.FIELD_SECTION, true), '');
@@ -1365,6 +1365,35 @@ export default class DocBuilder extends EventTarget
 		return memberDeclaration;
 	}
 
+	#constructFullName(definition)
+	{
+		if (definition.owner)
+		{
+			return this.#constructReference(definition.owner) + '.' + definition.name;
+		}
+
+		return definition.name;
+	}
+
+	#constructQualifiedName(definition)
+	{
+		let components = [];
+
+		if (definition.namespace)
+		{
+			components.push(definition.namespace);
+		}
+
+		if (definition.owner)
+		{
+			components.push(this.#constructReference(definition.owner));
+		}
+
+		components.push(definition.name);
+
+		return components.join('.');
+	}
+
 	#constructInherits(definition)
 	{
 		// TODO Construct full inheritance chain.
@@ -1432,16 +1461,6 @@ export default class DocBuilder extends EventTarget
 	}
 
 	#constructOwner(definition)
-	{
-		if (definition.owner)
-		{
-			return this.#constructReference(definition.owner) + '.';
-		}
-
-		return '';
-	}
-
-	#constructOwnerName(definition)
 	{
 		if (definition.owner)
 		{

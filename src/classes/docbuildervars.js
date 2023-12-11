@@ -11,6 +11,8 @@ export default class DocBuilderVars
 	static NAV_MEMBER_NAME = '$navmembername';
 	static NAV_MEMBER_URL = '$navmemberurl';
 	static MEMBER_NAME = '$membername';
+	static MEMBER_FULL_NAME = '$memberfullname';
+	static MEMBER_QUALIFIED_NAME = '$memberqualifiedname';
 	static MEMBER_NAME_TEXT = '$membernametext';
 	static MEMBER_TYPE_TEXT = '$membertypetext';
 	static MEMBER_TYPE_TITLE_TEXT = '$membertypetitletext';
@@ -20,7 +22,6 @@ export default class DocBuilderVars
 	static MEMBER_NAMESPACE = '$membernamespace';
 	static MEMBER_ASSEMBLY = '$memberassembly';
 	static MEMBER_OWNER = '$memberowner';
-	static MEMBER_OWNER_NAME = '$memberownername';
 	static DESCRIPTION_SECTION = '$descriptionsection';
 	static TYPE_PARAMETER_SECTION = '$typeparametersection';
 	static TYPE_PARAMETERS = '$typeparameters';
