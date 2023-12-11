@@ -69,7 +69,6 @@ export class Doxsite
 		let apiLoader = new APILoader();
 		apiLoader.xmlPath = config.xmlPath || 'XML';
 		apiLoader.xmlIndexFile = config.xmlIndexFile || 'index.xml';
-		apiLoader.addEventListener('loaded', (evt) => { console.log('API loaded!', evt); });
 		apiLoader.load();
 
 		console.log('...API loaded.');
@@ -84,7 +83,6 @@ export class Doxsite
 		docBuilder.urlRootPath = config.urlRootPath || '/';
 		docBuilder.apiSubPath = config.apiSubPath || 'API';
 		docBuilder.searchdataSubPath = config.searchdataSubPath || 'scripts';
-		docBuilder.addEventListener('complete', (evt) => { console.log('Doc build complete!', evt); });
 		docBuilder.buildDocs();
 
 		console.log('Docs built!');
