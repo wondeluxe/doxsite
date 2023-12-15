@@ -593,8 +593,32 @@ export default class APILoader extends EventTarget
 		for (let n = 0; n < namespaces.length; )
 		{
 			let namespace = namespaces[n];
+			let hasMembers = !!namespace.members.length;
 
-			if (namespace.members.length == 0)
+			if (!hasMembers)
+			{
+				let qualifiedName = namespace.qualifiedName;
+
+				for (let i = n + 1; i < namespaces.length; i++)
+				{
+					let nextNamespace = namespaces[i];
+
+					if (nextNamespace.qualifiedName.indexOf(`${qualifiedName}.`) != 0)
+					{
+						break;
+					}
+
+					if (nextNamespace.members.length)
+					{
+						hasMembers = true;
+						break;
+					}
+
+					qualifiedName = nextNamespace.qualifiedName;
+				}
+			}
+
+			if (!hasMembers)
 			{
 				namespaces.splice(n, 1);
 				continue;
@@ -660,7 +684,7 @@ export default class APILoader extends EventTarget
 		{
 			let currNamespace = namespaces[n];
 
-			if (currNamespace.qualifiedName.indexOf(prevNamespace.qualifiedName + '.') == 0)
+			if (currNamespace.qualifiedName.indexOf(`${prevNamespace.qualifiedName}.`) == 0)
 			{
 				let nestedNamespaceName = currNamespace.qualifiedName.substr(prevNamespace.qualifiedName.length + 1);
 				let nestedNamespaceNames = nestedNamespaceName.split('.');
