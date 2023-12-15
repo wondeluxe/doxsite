@@ -597,13 +597,11 @@ export default class APILoader extends EventTarget
 
 			if (!hasMembers)
 			{
-				let qualifiedName = namespace.qualifiedName;
-
 				for (let i = n + 1; i < namespaces.length; i++)
 				{
 					let nextNamespace = namespaces[i];
 
-					if (nextNamespace.qualifiedName.indexOf(`${qualifiedName}.`) != 0)
+					if (nextNamespace.qualifiedName.indexOf(`${namespace.qualifiedName}.`) != 0)
 					{
 						break;
 					}
@@ -613,8 +611,6 @@ export default class APILoader extends EventTarget
 						hasMembers = true;
 						break;
 					}
-
-					qualifiedName = nextNamespace.qualifiedName;
 				}
 			}
 
