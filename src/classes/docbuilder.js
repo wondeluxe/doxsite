@@ -170,15 +170,17 @@ export default class DocBuilder extends EventTarget
 
 			for (let i = 0; i < searchDefs.length; i++)
 			{
-				searchDefStrings.push('{name: "' + searchDefs[i].name + '", description: "' + searchDefs[i].description.replace(/\"/g, '\\\"') + '", url: "' + searchDefs[i].url + '"}');
+				searchDefStrings.push(`{name: "${searchDefs[i].name}", description: "${searchDefs[i].description.replace(/\"/g, '\\\"')}", url: "${searchDefs[i].url}"}`);
 			}
 
 			searchDataStrings.push(searchValue + ': [\n\t\t' + searchDefStrings.join(',\n\t\t') + '\n\t]');
 		}
 
-		let searchFileText = 'export default {\n\t' + searchDataStrings.join(',\n\t') + '\n}';
+		let searchFilePath = this.#getOutputPath(this.searchdataSubPath);
+		let searchFileText = `export default {\n\t${searchDataStrings.join(',\n\t')}\n}`;
 
-		fs.writeFileSync(this.#getOutputPath(this.searchdataSubPath) + '/searchdata.js', searchFileText);
+		fs.mkdirSync(searchFilePath, {recursive: true});
+		fs.writeFileSync(`${searchFilePath}/searchdata.js`, searchFileText);
 
 		this.dispatchEvent(new Event('complete'));
 	}
