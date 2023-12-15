@@ -134,6 +134,8 @@ export class Doxsite
 		copyFile(templatePath + '/scripts/searchform.js', projectPath + '/develop/scripts/searchform.js');
 		copyFile(templatePath + '/scripts/searchprovider.js', projectPath + '/develop/scripts/searchprovider.js');
 		copyFile(templatePath + '/scripts/levenshtein.js', projectPath + '/develop/scripts/levenshtein.js');
+		copyFile(templatePath + '/index.html', projectPath + '/templates/index.html');
+		copyFile(templatePath + '/search.html', projectPath + '/templates/search.html');
 		copyFile(templatePath + '/templates.json', projectPath + '/templates/templates.json');
 
 		let htmlFiles = fs.readdirSync(templatePath + '/api');
