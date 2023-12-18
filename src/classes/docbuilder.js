@@ -1599,7 +1599,7 @@ export default class DocBuilder extends EventTarget
 	#addSearchData(definition)
 	{
 		let data = this.#searchData;
-		let text = definition.name.toLowerCase();
+		let text = definition.name.toLowerCase().replace(/\[.*]/g, '').match(/[^\.]+$/)[0];// TODO Better solution to handling indexers and nested types.
 
 		if (!data[text])
 		{

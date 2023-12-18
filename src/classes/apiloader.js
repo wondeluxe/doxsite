@@ -285,7 +285,7 @@ export default class APILoader extends EventTarget
 		apiObject.id = json.attributes.id;
 		apiObject.owner = owner;
 		apiObject.definitionType = json.attributes.kind;
-		apiObject.qualifiedName = APILoader.#stripTypeParameters(json.compoundname.replace(/::/g, '.'));
+		apiObject.qualifiedName = APILoader.#sanitizeIdentifier(json.compoundname.replace(/::/g, '.'));
 		apiObject.name = apiObject.qualifiedName.match(/[^\.]+$/)[0];
 		apiObject.access = json.attributes.prot;
 		apiObject.namespace = apiObject.qualifiedName.match(/.*(?=\.\w+)/)[0];// Needs to be checked against valid namespaces. Won't work if it's a nested type.
@@ -326,7 +326,7 @@ export default class APILoader extends EventTarget
 				let baseReference = new APIReference();
 
 				baseReference.id = baseref.attributes.refid || null;
-				baseReference.qualifiedName = APILoader.#stripTypeParameters(baseref.textcontent);
+				baseReference.qualifiedName = APILoader.#sanitizeIdentifier(baseref.textcontent);
 				baseReference.name = baseReference.qualifiedName.match(/[^\.]+$/)[0];
 
 				if ((baseReference.id && baseReference.id.match(/^interface_/)) || baseReference.name.match(/I[A-Z]\w+/))
@@ -432,8 +432,8 @@ export default class APILoader extends EventTarget
 
 		apiField.id = json.attributes.id;
 		apiField.owner = owner;
-		apiField.qualifiedName = json.qualifiedname;
-		apiField.name = json.name;
+		apiField.qualifiedName = APILoader.#sanitizeIdentifier(json.qualifiedname);
+		apiField.name = APILoader.#sanitizeIdentifier(json.name);
 		apiField.type = APILoader.#typeToHTML(json.type);
 		apiField.access = json.attributes.prot;
 		apiField.static = (json.attributes.static == 'yes');
@@ -449,8 +449,8 @@ export default class APILoader extends EventTarget
 
 		apiProperty.id = json.attributes.id;
 		apiProperty.owner = owner;
-		apiProperty.qualifiedName = json.qualifiedname;
-		apiProperty.name = json.name;
+		apiProperty.qualifiedName = APILoader.#sanitizeIdentifier(json.qualifiedname);
+		apiProperty.name = APILoader.#sanitizeIdentifier(json.name);
 		apiProperty.type = APILoader.#typeToHTML(json.type);
 		apiProperty.getAccess = (json.attributes.gettable == 'yes') ? json.attributes.prot : (json.attributes.protectedgettable == 'yes') ? 'protected' : null;
 		apiProperty.setAccess = (json.attributes.settable == 'yes') ? json.attributes.prot : (json.attributes.protectedsettable == 'yes') ? 'protected' : null;
@@ -469,8 +469,8 @@ export default class APILoader extends EventTarget
 		apiMethod.id = json.attributes.id;
 		apiMethod.owner = owner;
 		apiMethod.definitionType = owner ? 'method' : 'delegate';
-		apiMethod.qualifiedName = APILoader.#stripTypeParameters(json.qualifiedname);
-		apiMethod.name = APILoader.#stripTypeParameters(json.name);
+		apiMethod.qualifiedName = APILoader.#sanitizeIdentifier(json.qualifiedname);
+		apiMethod.name = APILoader.#sanitizeIdentifier(json.name);
 		apiMethod.type = APILoader.#typeToHTML(json.type);// Return type or "void".
 		apiMethod.access = json.attributes.prot;
 		apiMethod.static = (json.attributes.static == 'yes');
@@ -534,8 +534,8 @@ export default class APILoader extends EventTarget
 
 		apiEvent.id = json.attributes.id;
 		apiEvent.owner = owner;
-		apiEvent.qualifiedName = APILoader.#stripTypeParameters(json.qualifiedname);
-		apiEvent.name = APILoader.#stripTypeParameters(json.name);
+		apiEvent.qualifiedName = APILoader.#sanitizeIdentifier(json.qualifiedname);
+		apiEvent.name = APILoader.#sanitizeIdentifier(json.name);
 		apiEvent.type = APILoader.#typeToHTML(json.type);
 		apiEvent.access = json.attributes.prot;
 		apiEvent.static = (json.attributes.static == 'yes');
@@ -724,9 +724,15 @@ export default class APILoader extends EventTarget
 		return xml.replace(/\r/g, '\n').replace(/<(\/)detaildescription>/g, '<$1detaileddescription>').replace(/\s*<programlisting>/g, '$blockcode<programlisting>').replace(/<computeroutput>/g, '$inlinecode<computeroutput>').replace(/<sp\s*\/>/g, '&nbsp;');
 	}
 
-	static #stripTypeParameters(identifier)
+	/**
+	 * Strips type parameters and indexer names from an identifier.
+	 * @param {String} identifier - The identifier to sanitize.
+	 * @returns {String} A sanitized identifier.
+	 */
+
+	static #sanitizeIdentifier(identifier)
 	{
-		return identifier.replace(/\<.*/, '');
+		return identifier.replace(/\s*<.*>\s*/g, '').replace(/\s*\[\s*(.+)\s+.+]/g, '[$1]');
 	}
 
 	static #typeToHTML(type)
